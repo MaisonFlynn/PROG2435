@@ -52,23 +52,25 @@ class _RedirectState extends State<Redirect> {
                 const SizedBox(height: 10),
                 SizedBox(
                   width: 300,
+                  height: 55,
                   child: TextFormField(
                     controller: usernameController,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8))),
-                      hintText: "PETTO'S NAMAE", // Placeholder
+                      hintText: "PETTO'S NAMAE",
+                      errorStyle: TextStyle(fontSize: 0, height: 0),
                     ),
                     textCapitalization: TextCapitalization.characters,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return ''; // !
+                        return ''; 
                       }
                       if (value.length < 3 || value.length > 16) {
-                        return ''; // !
+                        return ''; 
                       }
                       if (!RegExp(r'^[A-Z0-9]+$').hasMatch(value)) {
-                        return ''; // !
+                        return ''; 
                       }
                       return null;
                     },
@@ -87,13 +89,15 @@ class _RedirectState extends State<Redirect> {
                 const SizedBox(height: 10),
                 SizedBox(
                   width: 300,
+                  height: 55,
                   child: TextFormField(
                     controller: passwordController,
                     obscureText: _obscureText,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8))),
-                      hintText: 'PASUWĀDO', // Placeholder
+                      hintText: 'PASUWĀDO',
+                      errorStyle: const TextStyle(fontSize: 0, height: 0),
                       suffixIcon: IconButton(
                         icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility),
                         onPressed: () {
@@ -105,14 +109,14 @@ class _RedirectState extends State<Redirect> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return ''; // !
+                        return ''; 
                       }
                       if (value.length < 8) {
-                        return ''; // !
+                        return ''; 
                       }
-                      if (!RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@\$!%*?&])[A-Za-z\d@\$!%*?&]{8,}\$')
+                      if (!RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@\$!%*?&])[A-Za-z\d@\$!%*?&]{8,}$')
                           .hasMatch(value)) {
-                        return ''; // !
+                        return ''; 
                       }
                       return null;
                     },
