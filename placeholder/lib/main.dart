@@ -58,7 +58,7 @@ class _RedirectState extends State<Redirect> {
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8))),
-                      hintText: "PETTO'S NAMAE",
+                      hintText: "PETTO'S NAMAE", // Placeholder
                       errorStyle: TextStyle(fontSize: 0, height: 0),
                     ),
                     textCapitalization: TextCapitalization.characters,
@@ -96,7 +96,7 @@ class _RedirectState extends State<Redirect> {
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8))),
-                      hintText: 'PASUWĀDO',
+                      hintText: 'PASUWĀDO', // Placeholder
                       errorStyle: const TextStyle(fontSize: 0, height: 0),
                       suffixIcon: IconButton(
                         icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility),
@@ -128,6 +128,7 @@ class _RedirectState extends State<Redirect> {
                   height: 50,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.black,
                       shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8))),
                     ),
@@ -139,7 +140,7 @@ class _RedirectState extends State<Redirect> {
                         );
                       }
                     },
-                    child: const Text('✔'),
+                    child: const Text('✔'), // ?
                   ),
                 ),
               ],
@@ -150,3 +151,7 @@ class _RedirectState extends State<Redirect> {
     );
   }
 }
+
+// UNIQUE PETTO'S NAMAE
+// ENCRYPT PASUWĀDO
+// DATABASE
