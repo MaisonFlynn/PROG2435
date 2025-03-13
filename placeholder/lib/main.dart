@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import 'home.dart';
 import 'dart:core';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'DB/DBHelper.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Innit DB
+
+  sqfliteFfiInit();
+  databaseFactory = databaseFactoryFfi;
+  await DBHelper.PRINT(); // Temporary
+
   runApp(const Placeholder());
 }
 
@@ -64,23 +72,25 @@ class _RedirectState extends State<Redirect> {
                     textCapitalization: TextCapitalization.characters,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return ''; 
+                        return '';
                       }
                       if (value.length < 3 || value.length > 16) {
-                        return ''; 
+                        return '';
                       }
                       if (!RegExp(r'^[A-Z0-9]+$').hasMatch(value)) {
-                        return ''; 
+                        return '';
                       }
                       return null;
                     },
                     onChanged: (value) {
-                      String purell = value.toUpperCase() // Sanitize
+                      String purell = value
+                          .toUpperCase() // Sanitize
                           .replaceAll(RegExp(r'[^A-Z0-9]'), '');
                       if (purell != value) {
                         namae.value = namae.value.copyWith(
                           text: purell,
-                          selection: TextSelection.collapsed(offset: purell.length),
+                          selection:
+                              TextSelection.collapsed(offset: purell.length),
                         );
                       }
                     },
@@ -99,7 +109,9 @@ class _RedirectState extends State<Redirect> {
                       hintText: 'PASUWĀDO', // Password
                       errorStyle: const TextStyle(fontSize: 0, height: 0),
                       suffixIcon: IconButton(
-                        icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility),
+                        icon: Icon(_obscureText
+                            ? Icons.visibility_off
+                            : Icons.visibility),
                         onPressed: () {
                           setState(() {
                             _obscureText = !_obscureText;
@@ -109,14 +121,15 @@ class _RedirectState extends State<Redirect> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return ''; 
+                        return '';
                       }
                       if (value.length < 8) {
-                        return ''; 
+                        return '';
                       }
-                      if (!RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@\$!%*?&])[A-Za-z\d@\$!%*?&]{8,}$')
+                      if (!RegExp(
+                              r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@\$!%*?&])[A-Za-z\d@\$!%*?&]{8,}$')
                           .hasMatch(value)) {
-                        return ''; 
+                        return '';
                       }
                       return null;
                     },
@@ -132,12 +145,41 @@ class _RedirectState extends State<Redirect> {
                       shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8))),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const Home()),
-                        );
+                        String Namae = namae.text;
+                        String Pasuwado = pasuwado.text;
+
+                        // GET "User"
+                        Map<String, dynamic>? Yuza =
+                            await DBHelper.GET(Namae);
+
+                        // IF !"User", CREATE
+                        if (Yuza == null) {
+                          await DBHelper.CREATE(Namae, Pasuwado);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const Home()),
+                          );
+                        } else {
+                          // IF "User", Check Pasuwādo
+                          if (Yuza['Pasuwado'] == Pasuwado) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const Home()),
+                            );
+                          } else {
+                            // IF Pasuwādo ≠ Yūzā's Pasuwādo
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text("Pasuwādo ≠")),
+                            );
+                          }
+                        }
                       }
                     },
                     child: const Text('✔'), // Placeholder
