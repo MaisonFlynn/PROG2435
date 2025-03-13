@@ -26,8 +26,8 @@ class Redirect extends StatefulWidget {
 }
 
 class _RedirectState extends State<Redirect> {
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController namae = TextEditingController();
+  final TextEditingController pasuwado = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _obscureText = true;
 
@@ -54,7 +54,7 @@ class _RedirectState extends State<Redirect> {
                   width: 300,
                   height: 55,
                   child: TextFormField(
-                    controller: usernameController,
+                    controller: namae,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8))),
@@ -75,12 +75,12 @@ class _RedirectState extends State<Redirect> {
                       return null;
                     },
                     onChanged: (value) {
-                      String sanitized = value.toUpperCase()
+                      String Purell = value.toUpperCase() // Sanitize
                           .replaceAll(RegExp(r'[^A-Z0-9]'), '');
-                      if (sanitized != value) {
-                        usernameController.value = usernameController.value.copyWith(
-                          text: sanitized,
-                          selection: TextSelection.collapsed(offset: sanitized.length),
+                      if (Purell != value) {
+                        namae.value = namae.value.copyWith(
+                          text: Purell,
+                          selection: TextSelection.collapsed(offset: Purell.length),
                         );
                       }
                     },
@@ -91,7 +91,7 @@ class _RedirectState extends State<Redirect> {
                   width: 300,
                   height: 55,
                   child: TextFormField(
-                    controller: passwordController,
+                    controller: pasuwado,
                     obscureText: _obscureText,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(
@@ -151,7 +151,3 @@ class _RedirectState extends State<Redirect> {
     );
   }
 }
-
-// UNIQUE PETTO'S NAMAE
-// ENCRYPT PASUWĀDO
-// DATABASE
