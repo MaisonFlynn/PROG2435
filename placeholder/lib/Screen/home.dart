@@ -31,9 +31,11 @@ class _HomeState extends State<Home> {
               // Header
               Container(
                 height: 60,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  border: Border(bottom: BorderSide(color: Colors.black, width: 1)),
+                  border:
+                      Border(bottom: BorderSide(color: Colors.black, width: 1)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -59,8 +61,14 @@ class _HomeState extends State<Home> {
                   child: SizedBox(
                     width: 300,
                     height: 50,
-                    child: ElevatedButton( // Temporary
+                    child: ElevatedButton(
                       onPressed: () => DELETE(context),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                        ),
+                      ),
                       child: const Text("❌"),
                     ),
                   ),
@@ -71,7 +79,8 @@ class _HomeState extends State<Home> {
               Container(
                 height: 60,
                 decoration: BoxDecoration(
-                  border: Border(top: BorderSide(color: Colors.black, width: 1)),
+                  border:
+                      Border(top: BorderSide(color: Colors.black, width: 1)),
                 ),
                 child: Row(
                   children: [
@@ -79,17 +88,22 @@ class _HomeState extends State<Home> {
                       child: Container(
                         height: double.infinity,
                         decoration: BoxDecoration(
-                          border: Border(right: BorderSide(color: Colors.black, width: 1)),
+                          border: Border(
+                              right: BorderSide(color: Colors.black, width: 1)),
                         ),
                         child: TextButton(
                           onPressed: () {},
                           style: TextButton.styleFrom(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero),
                             padding: EdgeInsets.zero,
                           ),
                           child: const SizedBox(
                             height: double.infinity,
-                            child: Center(child: Text("🏠", textAlign: TextAlign.center)), // "Home" Screen
+                            child: Center(
+                                child: Text("🏠",
+                                    textAlign:
+                                        TextAlign.center)), // "Home" Screen
                           ),
                         ),
                       ),
@@ -100,12 +114,16 @@ class _HomeState extends State<Home> {
                         child: TextButton(
                           onPressed: () {},
                           style: TextButton.styleFrom(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.zero),
                             padding: EdgeInsets.zero,
                           ),
                           child: const SizedBox(
                             height: double.infinity,
-                            child: Center(child: Text("🗺️", textAlign: TextAlign.center)), // "Map" Screen
+                            child: Center(
+                                child: Text("🗺️",
+                                    textAlign:
+                                        TextAlign.center)), // "Map" Screen
                           ),
                         ),
                       ),
