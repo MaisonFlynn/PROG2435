@@ -126,7 +126,7 @@ class _RedirectState extends State<Redirect> {
                       if (value.length < 8) {
                         return '';
                       }
-                      if (!RegExp(
+                      if (!RegExp( // STRONG Pasuwādo
                               r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@\$!%*?&])[A-Za-z\d@\$!%*?&]{8,}$')
                           .hasMatch(value)) {
                         return '';
@@ -151,32 +151,34 @@ class _RedirectState extends State<Redirect> {
                         String Pasuwado = pasuwado.text;
 
                         // GET "User"
-                        Map<String, dynamic>? Yuza =
-                            await DBHelper.GET(Namae);
+                        Map<String, dynamic>? Yuza = await DBHelper.GET(Namae);
 
-                        // IF !"User", CREATE
+                        // IF !"User", CREATE + LOGIN
                         if (Yuza == null) {
                           await DBHelper.CREATE(Namae, Pasuwado);
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    const Home()),
+                                    Home(namae: Namae)), // PASS "Username"
                           );
                         } else {
-                          // IF "User", Check Pasuwādo
-                          if (Yuza['Pasuwado'] == Pasuwado) {
+                          // IF "User", Check 🔒 Pasuwādo
+                          bool waPasuwado =
+                              await DBHelper.VERIFY(Namae, Pasuwado);
+
+                          if (waPasuwado) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      const Home()),
+                                      Home(namae: Namae)), // PASS "Username"
                             );
                           } else {
                             // IF Pasuwādo ≠ Yūzā's Pasuwādo
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                  content: Text("Pasuwādo ≠")),
+                                  content: Text("Pasuwādo ≠")), // Temporary
                             );
                           }
                         }

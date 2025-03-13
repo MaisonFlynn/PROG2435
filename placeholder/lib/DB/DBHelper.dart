@@ -1,6 +1,7 @@
-import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 class DBHelper {
   static Database? _database;
@@ -20,7 +21,8 @@ class DBHelper {
     return await databaseFactory.openDatabase(path,
         options: OpenDatabaseOptions(
           version: 1,
-          onCreate: (db, version) { // Create "User" Table
+          onCreate: (db, version) {
+            // Create "User" Table
             return db.execute('''
               CREATE TABLE Yuza (
                 ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,10 +43,25 @@ class DBHelper {
     print("📌 $path");
   }
 
+  // 🔒 Pasuwādo (SHA-256)
+  static String HASH(String pasuwado) {
+    return sha256.convert(utf8.encode(pasuwado)).toString();
+  }
+
+  // Verify Pasuwādo
+  static Future<bool> VERIFY(String namae, String pasuwado) async {
+    final yuza = await GET(namae);
+    if (yuza == null) return false; // !"User"
+
+    String hasshu = HASH(pasuwado);
+    return yuza['Pasuwado'] == hasshu; // =?
+  }
+
   // Create "User"
   static Future<int> CREATE(String namae, String pasuwado) async {
     final db = await database;
-    return db.insert('Yuza', {'Namae': namae, 'Pasuwado': pasuwado},
+    String hasshu = HASH(pasuwado); // 🔒
+    return db.insert('Yuza', {'Namae': namae, 'Pasuwado': hasshu},
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
@@ -54,5 +71,15 @@ class DBHelper {
     final result =
         await db.query('Yuza', where: 'namae = ?', whereArgs: [namae]);
     return result.isNotEmpty ? result.first : null;
+  }
+
+  // Delete "User"
+  static Future<int> DELETE(String namae) async {
+    final db = await database;
+    return await db.delete(
+      'Yuza',
+      where: 'Namae = ?',
+      whereArgs: [namae],
+    );
   }
 }
