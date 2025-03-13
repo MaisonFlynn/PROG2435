@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home.dart';
+import 'Screen/home.dart';
 import 'dart:core';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'DB/DBHelper.dart';
@@ -20,7 +20,7 @@ class Placeholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      title: 'SPLASH',
+      title: 'MAIN', // "Splash" Screen
       home: Redirect(),
     );
   }

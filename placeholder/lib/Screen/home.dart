@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'DB/DBHelper.dart';
+import '../DB/DBHelper.dart';
 
 class Home extends StatelessWidget {
   final String namae; // PASSED "Namae"
