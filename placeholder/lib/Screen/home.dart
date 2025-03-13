@@ -89,6 +89,9 @@ class _HomeState extends State<Home> {
                             height: double.infinity,
                             child: Center(
                                 child: Text("🏠",
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                    ),
                                     textAlign:
                                         TextAlign.center)), // "Home" Screen
                           ),
@@ -109,6 +112,9 @@ class _HomeState extends State<Home> {
                             height: double.infinity,
                             child: Center(
                                 child: Text("🗺️",
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                    ),
                                     textAlign:
                                         TextAlign.center)), // "Map" Screen
                           ),
