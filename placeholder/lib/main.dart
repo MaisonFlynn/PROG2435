@@ -165,7 +165,7 @@ class _RedirectState extends State<Redirect> {
                         } else {
                           // IF "User", Check 🔒 Pasuwādo
                           bool waPasuwado =
-                              await DBHelper.VERIFY(Namae, Pasuwado);
+                              await DBHelper.VALIDATE(Namae, Pasuwado);
 
                           if (waPasuwado) {
                             Navigator.push(

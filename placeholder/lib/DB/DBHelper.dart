@@ -48,8 +48,8 @@ class DBHelper {
     return sha256.convert(utf8.encode(pasuwado)).toString();
   }
 
-  // Verify Pasuwādo
-  static Future<bool> VERIFY(String namae, String pasuwado) async {
+  // Validate Pasuwādo
+  static Future<bool> VALIDATE(String namae, String pasuwado) async {
     final yuza = await GET(namae);
     if (yuza == null) return false; // !"User"
 
@@ -72,6 +72,8 @@ class DBHelper {
         await db.query('Yuza', where: 'namae = ?', whereArgs: [namae]);
     return result.isNotEmpty ? result.first : null;
   }
+
+  // Update "User"
 
   // Delete "User"
   static Future<int> DELETE(String namae) async {
