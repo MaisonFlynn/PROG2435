@@ -26,8 +26,10 @@ class Redirect extends StatefulWidget {
 }
 
 class _RedirectState extends State<Redirect> {
-  final TextEditingController Controller = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _obscureText = true;
 
   @override
   Widget build(BuildContext context) {
@@ -51,32 +53,68 @@ class _RedirectState extends State<Redirect> {
                 SizedBox(
                   width: 300,
                   child: TextFormField(
-                    controller: Controller,
+                    controller: usernameController,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8))),
-                      hintText: 'PETTO\'S NAMAE',
+                      hintText: "PETTO'S NAMAE", // Placeholder
                     ),
                     textCapitalization: TextCapitalization.characters,
-                    validator: (Value) {
-                      if (Value == null || Value.trim().isEmpty) {
-                        return 'ERROR'; // !
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return ''; // !
                       }
-                      if (!RegExp(r'^[A-Z0-9]+$').hasMatch(Value)) {
-                        return 'ERROR'; // !
+                      if (value.length < 3 || value.length > 16) {
+                        return ''; // !
+                      }
+                      if (!RegExp(r'^[A-Z0-9]+$').hasMatch(value)) {
+                        return ''; // !
                       }
                       return null;
                     },
-                    onChanged: (Value) {
-                      String Purell = Value.toUpperCase()
-                          .replaceAll(RegExp(r'[^A-Z0-9]'), ''); // Sanitize
-                      if (Purell != Value) {
-                        Controller.value = Controller.value.copyWith(
-                          text: Purell,
-                          selection:
-                              TextSelection.collapsed(offset: Purell.length),
+                    onChanged: (value) {
+                      String sanitized = value.toUpperCase()
+                          .replaceAll(RegExp(r'[^A-Z0-9]'), '');
+                      if (sanitized != value) {
+                        usernameController.value = usernameController.value.copyWith(
+                          text: sanitized,
+                          selection: TextSelection.collapsed(offset: sanitized.length),
                         );
                       }
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: 300,
+                  child: TextFormField(
+                    controller: passwordController,
+                    obscureText: _obscureText,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8))),
+                      hintText: 'PASUWĀDO', // Placeholder
+                      suffixIcon: IconButton(
+                        icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility),
+                        onPressed: () {
+                          setState(() {
+                            _obscureText = !_obscureText;
+                          });
+                        },
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return ''; // !
+                      }
+                      if (value.length < 8) {
+                        return ''; // !
+                      }
+                      if (!RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@\$!%*?&])[A-Za-z\d@\$!%*?&]{8,}\$')
+                          .hasMatch(value)) {
+                        return ''; // !
+                      }
+                      return null;
                     },
                   ),
                 ),
