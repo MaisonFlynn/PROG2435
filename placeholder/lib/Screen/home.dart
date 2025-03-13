@@ -58,20 +58,7 @@ class _HomeState extends State<Home> {
               // Body
               Expanded(
                 child: Center(
-                  child: SizedBox(
-                    width: 300,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: () => DELETE(context),
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.black,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                        ),
-                      ),
-                      child: const Text("❌"),
-                    ),
-                  ),
+                  child: Text("Placeholder"), // Temporary
                 ),
               ),
 
@@ -144,7 +131,20 @@ class _HomeState extends State<Home> {
               child: Container(
                 color: Colors.white,
                 child: Center(
-                  child: Text("Placeholder"),
+                  child: SizedBox(
+                    width: 300,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () => DELETE(context),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                        ),
+                      ),
+                      child: const Text("❌"),
+                    ),
+                  ),
                 ),
               ),
             ),
