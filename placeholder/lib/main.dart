@@ -75,12 +75,12 @@ class _RedirectState extends State<Redirect> {
                       return null;
                     },
                     onChanged: (value) {
-                      String Purell = value.toUpperCase() // Sanitize
+                      String purell = value.toUpperCase() // Sanitize
                           .replaceAll(RegExp(r'[^A-Z0-9]'), '');
-                      if (Purell != value) {
+                      if (purell != value) {
                         namae.value = namae.value.copyWith(
-                          text: Purell,
-                          selection: TextSelection.collapsed(offset: Purell.length),
+                          text: purell,
+                          selection: TextSelection.collapsed(offset: purell.length),
                         );
                       }
                     },
