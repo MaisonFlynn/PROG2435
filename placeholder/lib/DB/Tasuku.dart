@@ -15,9 +15,9 @@ class Tasuku {
     {"TasukuID": 10, "Tasuku": "PLACEHOLDER 10"},
   ];
 
-  // Get 3 "Task(s)"
+  // Get "Task(s)"
   static List<Map<String, dynamic>> GET() {
     _tasuku.shuffle(Random(DateTime.now().day));
-    return _tasuku.take(3).toList();
+    return _tasuku.take(5).toList(); // !
   }
 }
