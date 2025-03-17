@@ -247,8 +247,6 @@ class _HomeState extends State<Home> {
                       ),
                     ),
 
-                    const SizedBox(height: 20),
-
                     // Timer
                     Text(
                       "${taimu.inHours.toString().padLeft(2, '0')}:"
