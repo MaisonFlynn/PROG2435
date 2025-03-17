@@ -41,15 +41,24 @@ class _HomeState extends State<Home> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text("👋🏻 ${widget.namae}"),
-                    IconButton(
-                      icon: Icon(
-                        Tasuku ? Icons.expand_less : Icons.expand_more,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          Tasuku = !Tasuku;
-                        });
-                      },
+                    Row(
+                      children: [
+                        IconButton( // Temporary (DELETE Yūzā)
+                          icon: const Icon(Icons.close, color: Colors.black),
+                          onPressed: () => DELETE(context),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Tasuku ? Icons.expand_less : Icons.expand_more,
+                            color: Colors.black,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              Tasuku = !Tasuku;
+                            });
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -88,12 +97,8 @@ class _HomeState extends State<Home> {
                           child: const SizedBox(
                             height: double.infinity,
                             child: Center(
-                                child: Text("🏠",
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                    ),
-                                    textAlign:
-                                        TextAlign.center)), // "Home" Screen
+                                child: Icon(Icons.home,
+                                    color: Colors.black)), // "Home" Screen
                           ),
                         ),
                       ),
@@ -111,12 +116,8 @@ class _HomeState extends State<Home> {
                           child: const SizedBox(
                             height: double.infinity,
                             child: Center(
-                                child: Text("🗺️",
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                    ),
-                                    textAlign:
-                                        TextAlign.center)), // "Map" Screen
+                                child: Icon(Icons.map,
+                                    color: Colors.black)), // "Map" Screen
                           ),
                         ),
                       ),
@@ -137,21 +138,8 @@ class _HomeState extends State<Home> {
               child: Container(
                 color: Colors.white,
                 child: Center(
-                  child: SizedBox(
-                    width: 300,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: () => DELETE(context),
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.black,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                        ),
-                      ),
-                      child: const Text("❌"),
+                    // Temporary
                     ),
-                  ),
-                ),
               ),
             ),
         ],

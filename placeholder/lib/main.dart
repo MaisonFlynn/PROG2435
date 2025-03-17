@@ -126,7 +126,7 @@ class _RedirectState extends State<Redirect> {
                       if (value.length < 8) {
                         return '';
                       }
-                      if (!RegExp( // STRONG Pasuwādo
+                      if (!RegExp( // 💪🏻 Pasuwādo
                               r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@\$!%*?&])[A-Za-z\d@\$!%*?&]{8,}$')
                           .hasMatch(value)) {
                         return '';
