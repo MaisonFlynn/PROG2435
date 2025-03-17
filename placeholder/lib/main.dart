@@ -184,7 +184,7 @@ class _RedirectState extends State<Redirect> {
                         }
                       }
                     },
-                    child: const Text('✔'), // Placeholder
+                    child: Icon(Icons.check, color: Colors.black), // Placeholder
                   ),
                 ),
               ],
