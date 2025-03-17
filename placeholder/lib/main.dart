@@ -126,7 +126,7 @@ class _RedirectState extends State<Redirect> {
                       if (value.length < 8) {
                         return '';
                       }
-                      if (!RegExp( // 💪🏻 Pasuwādo
+                      if (!RegExp(// 💪🏻 Pasuwādo
                               r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@\$!%*?&])[A-Za-z\d@\$!%*?&]{8,}$')
                           .hasMatch(value)) {
                         return '';
@@ -184,7 +184,8 @@ class _RedirectState extends State<Redirect> {
                         }
                       }
                     },
-                    child: Icon(Icons.check, color: Colors.black), // Placeholder
+                    child:
+                        Icon(Icons.check, color: Colors.black), // Placeholder
                   ),
                 ),
               ],

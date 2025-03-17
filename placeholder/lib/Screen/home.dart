@@ -103,7 +103,8 @@ class _HomeState extends State<Home> {
                     Text("👋🏻 ${widget.namae}"),
                     Row(
                       children: [
-                        IconButton( // Temporary
+                        IconButton(
+                          // Temporary
                           icon: const Icon(Icons.close, color: Colors.red),
                           onPressed: () => DELETE(context),
                         ),

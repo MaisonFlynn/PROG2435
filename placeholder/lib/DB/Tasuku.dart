@@ -1,6 +1,7 @@
 import 'dart:math';
 
-class Tasuku { // Placeholder(s)
+class Tasuku {
+  // Placeholder(s)
   static final List<Map<String, dynamic>> _tasuku = [
     {"TasukuID": 1, "Tasuku": "PLACEHOLDER 1"},
     {"TasukuID": 2, "Tasuku": "PLACEHOLDER 2"},
