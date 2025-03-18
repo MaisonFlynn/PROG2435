@@ -117,7 +117,6 @@ class _HomeState extends State<Home> {
                         Text("$XP",
                             style: TextStyle(
                               fontSize: 18,
-                              fontWeight: FontWeight.bold,
                               color: Colors.green,
                             )),
                       ],
@@ -267,10 +266,9 @@ class _HomeState extends State<Home> {
                                     ),
                                     // XP Display
                                     Text(
-                                      "+${tasuku[index]['XP']} XP",
+                                      "${tasuku[index]['XP']} XP",
                                       style: const TextStyle(
                                         fontSize: 16,
-                                        fontWeight: FontWeight.bold,
                                         color: Colors.green,
                                       ),
                                     ),
