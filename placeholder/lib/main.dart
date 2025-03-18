@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'Screen/Maison.dart';
+import 'Screen/Home.dart';
 import 'dart:core';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'DB/DBHelper.dart';
@@ -178,7 +178,7 @@ class _RedirectState extends State<Redirect> {
                             // IF Pasuwādo ≠ Yūzā's Pasuwādo
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                  content: Text("Pasuwādo ≠")), // Temporary
+                                  content: Text("❌ Pasuwādo")), // Temporary
                             );
                           }
                         }

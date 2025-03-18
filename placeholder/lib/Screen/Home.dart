@@ -75,7 +75,7 @@ class _HomeState extends State<Home> {
     });
   }
 
-  // Calculate time until midnight
+  // Calc.
   Duration _taimu() {
     final now = DateTime.now();
     final midnight = DateTime(now.year, now.month, now.day + 1);
@@ -281,7 +281,7 @@ class _HomeState extends State<Home> {
                       ),
                     ),
 
-                    // Timer
+                    // HH:MM:SS
                     Text(
                       "${taimu.inHours.toString().padLeft(2, '0')}:"
                       "${(taimu.inMinutes % 60).toString().padLeft(2, '0')}:"

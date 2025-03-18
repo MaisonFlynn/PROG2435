@@ -6,6 +6,10 @@ import 'package:crypto/crypto.dart';
 class DBHelper {
   static Database? _database;
 
+  static set Test(Database db) {
+    _database = db;
+  }
+
   static Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDB();
