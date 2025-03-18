@@ -18,6 +18,7 @@ class _HomeState extends State<Home> {
   late List<bool> chekku; // "Task(s)" Checked
   late Duration taimu;
   late Timer taima;
+  int XP = 0;
 
   @override
   void initState() {
@@ -44,10 +45,15 @@ class _HomeState extends State<Home> {
     List<Map<String, dynamic>> tupperware =
         await DBHelper.FETCHI(widget.namae); // Storage
 
+    int xp = await DBHelper.GET_XP(widget.namae);
+    setState(() {
+      XP = xp;
+    });
+
     if (tupperware.isEmpty) {
       // + Task(s)
-      List<Map<String, dynamic>> newTasks = Tasuku.GET();
-      await DBHelper.SAVE(widget.namae, newTasks);
+      List<Map<String, dynamic>> task = Tasuku.GET();
+      await DBHelper.SAVE(widget.namae, task);
       tupperware = await DBHelper.FETCHI(widget.namae);
     }
 
@@ -60,8 +66,12 @@ class _HomeState extends State<Home> {
   // Check Task(s)
   Future<void> Chekku(int index) async {
     await DBHelper.CHEKKU(tasuku[index]['TasukuID'], widget.namae);
+
+    int EXP = await DBHelper.GET_XP(widget.namae);
+
     setState(() {
       chekku[index] = true;
+      XP = EXP;
     });
   }
 
@@ -100,11 +110,21 @@ class _HomeState extends State<Home> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("👋🏻 ${widget.namae}"),
+                    Row(
+                      children: [
+                        Text("👋🏻 ${widget.namae} ",
+                            style: TextStyle(fontSize: 18)),
+                        Text("$XP",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            )),
+                      ],
+                    ),
                     Row(
                       children: [
                         IconButton(
-                          // Temporary
                           icon: const Icon(Icons.close, color: Colors.red),
                           onPressed: () => DELETE(context),
                         ),
@@ -128,8 +148,8 @@ class _HomeState extends State<Home> {
               // Body
               Expanded(
                 child: Center(
-                  child: Text("Placeholder"), // Temporary
-                ),
+                    // Temporary
+                    ),
               ),
 
               // Footer
@@ -232,13 +252,29 @@ class _HomeState extends State<Home> {
                                         BorderRadius.all(Radius.circular(8)),
                                   ),
                                 ),
-                                child: Text(
-                                  tasuku[index]['Tasuku'],
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black,
-                                  ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    // Task Name
+                                    Text(
+                                      tasuku[index]['Tasuku'],
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    // XP Display
+                                    Text(
+                                      "+${tasuku[index]['XP']} XP",
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),

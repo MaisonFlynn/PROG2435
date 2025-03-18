@@ -13,7 +13,6 @@ class DBHelper {
   }
 
   static Future<Database> _initDB() async {
-    // Innit DB Factory
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
 
@@ -27,7 +26,8 @@ class DBHelper {
               CREATE TABLE Yuza (
                 ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 Namae TEXT UNIQUE NOT NULL,
-                Pasuwado TEXT NOT NULL
+                Pasuwado TEXT NOT NULL,
+                XP INTEGER DEFAULT 0
               )
             ''');
 
@@ -38,7 +38,8 @@ class DBHelper {
                 Namae TEXT NOT NULL,
                 TasukuID INTEGER NOT NULL,
                 Tasuku TEXT NOT NULL,
-                Chekku INTEGER DEFAULT 0
+                Chekku INTEGER DEFAULT 0,
+                XP INTEGER DEFAULT 0
               )
             ''');
           },
@@ -76,7 +77,7 @@ class DBHelper {
   static Future<int> CREATE(String namae, String pasuwado) async {
     final db = await database;
     String hasshu = HASH(pasuwado); // 🔒
-    return db.insert('Yuza', {'Namae': namae, 'Pasuwado': hasshu},
+    return db.insert('Yuza', {'Namae': namae, 'Pasuwado': hasshu, 'XP': 0},
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
@@ -84,11 +85,27 @@ class DBHelper {
   static Future<Map<String, dynamic>?> GET(String namae) async {
     final db = await database;
     final result =
-        await db.query('Yuza', where: 'namae = ?', whereArgs: [namae]);
+        await db.query('Yuza', where: 'Namae = ?', whereArgs: [namae]);
     return result.isNotEmpty ? result.first : null;
   }
 
-  // Update "User"
+  // Get XP
+  static Future<int> GET_XP(String namae) async {
+    final db = await database;
+    final result = await db.query('Yuza',
+        columns: ['XP'], where: 'Namae = ?', whereArgs: [namae]);
+    return result.isNotEmpty ? result.first['XP'] as int : 0;
+  }
+
+  // Update XP
+  static Future<void> UPDATE_XP(String namae, int xp) async {
+    final db = await database;
+    await db.rawUpdate('''
+    UPDATE Yuza 
+    SET XP = XP + ? 
+    WHERE Namae = ?
+  ''', [xp, namae]);
+  }
 
   // Delete "User" & Task(s)
   static Future<int> DELETE(String namae) async {
@@ -116,7 +133,6 @@ class DBHelper {
       String namae, List<Map<String, dynamic>> tasukus) async {
     final db = await database;
 
-    // - OLD Task(s), + NEW Task(s)
     await db.delete('Tasuku', where: 'Namae = ?', whereArgs: [namae]);
 
     for (var tasuku in tasukus) {
@@ -124,7 +140,8 @@ class DBHelper {
         "Namae": namae,
         "TasukuID": tasuku["TasukuID"],
         "Tasuku": tasuku["Tasuku"],
-        "Chekku": 0
+        "Chekku": 0,
+        "XP": tasuku["XP"] ?? 0,
       });
     }
   }
@@ -141,17 +158,22 @@ class DBHelper {
 
     List<Map<String, dynamic>> task = await db.query(
       'Tasuku',
-      where: 'TasukuID = ? AND Namae = ? AND Chekku = 1',
+      where: 'TasukuID = ? AND Namae = ?',
       whereArgs: [tasukuID, namae],
     );
 
-    if (task.isEmpty) {
+    if (task.isNotEmpty && task.first['Chekku'] == 0) {
+      int earnedXP = task.first['XP'];
+
       await db.update(
         'Tasuku',
         {"Chekku": 1},
         where: 'TasukuID = ? AND Namae = ?',
         whereArgs: [tasukuID, namae],
       );
+
+      // + XP
+      await UPDATE_XP(namae, earnedXP);
     }
   }
 
