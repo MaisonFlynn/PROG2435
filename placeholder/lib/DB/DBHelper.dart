@@ -70,7 +70,7 @@ class DBHelper {
 
   // Validate Pasuwādo
   static Future<bool> VALIDATE(String namae, String pasuwado) async {
-    final yuza = await GET(namae);
+    final yuza = await GET_USER(namae);
     if (yuza == null) return false; // !"User"
 
     String hasshu = HASH(pasuwado);
@@ -86,7 +86,7 @@ class DBHelper {
   }
 
   // Get "User"
-  static Future<Map<String, dynamic>?> GET(String namae) async {
+  static Future<Map<String, dynamic>?> GET_USER(String namae) async {
     final db = await database;
     final result =
         await db.query('Yuza', where: 'Namae = ?', whereArgs: [namae]);
@@ -151,13 +151,13 @@ class DBHelper {
   }
 
   // Fetch "Task(s)"
-  static Future<List<Map<String, dynamic>>> FETCHI(String namae) async {
+  static Future<List<Map<String, dynamic>>> FETCH(String namae) async {
     final db = await database;
     return await db.query('Tasuku', where: 'Namae = ?', whereArgs: [namae]);
   }
 
   // Check "Task(s)" (DONE)
-  static Future<void> CHEKKU(int tasukuID, String namae) async {
+  static Future<void> CHECK(int tasukuID, String namae) async {
     final db = await database;
 
     List<Map<String, dynamic>> task = await db.query(
@@ -182,7 +182,7 @@ class DBHelper {
   }
 
   // Reset "Task(s)" (Midnight)
-  static Future<void> RISETTO(String namae) async {
+  static Future<void> RESET(String namae) async {
     final db = await database;
 
     await db.update(

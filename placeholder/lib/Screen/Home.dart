@@ -4,9 +4,9 @@ import '../DB/DBHelper.dart';
 import '../DB/Tasuku.dart';
 
 class Home extends StatefulWidget {
-  final String namae;
+  final String username;
 
-  const Home({super.key, required this.namae});
+  const Home({super.key, required this.username});
 
   @override
   _HomeState createState() => _HomeState();
@@ -14,21 +14,21 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool Dropdown = false;
-  late List<Map<String, dynamic>> tasuku; // "Task(s)" List
-  late List<bool> chekku; // "Task(s)" Checked
-  late Duration taimu;
-  late Timer taima;
+  late List<Map<String, dynamic>> task;
+  late List<bool> check;
+  late Duration duration;
+  late Timer timer;
   int XP = 0;
 
   @override
   void initState() {
     super.initState();
     _innit();
-    taimu = _taimu(); // Midnight
-    taima = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+    duration = _duration(); // Midnight
+    timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
       if (mounted) {
         setState(() {
-          taimu = _taimu();
+          duration = _duration();
         });
       }
     });
@@ -36,16 +36,16 @@ class _HomeState extends State<Home> {
 
   @override
   void dispose() {
-    taima.cancel();
+    timer.cancel();
     super.dispose();
   }
 
   // Fetch/Create Task(s)
   Future<void> _innit() async {
     List<Map<String, dynamic>> tupperware =
-        await DBHelper.FETCHI(widget.namae); // Storage
+        await DBHelper.FETCH(widget.username); // Storage
 
-    int xp = await DBHelper.GET_XP(widget.namae);
+    int xp = await DBHelper.GET_XP(widget.username);
     setState(() {
       XP = xp;
     });
@@ -53,30 +53,30 @@ class _HomeState extends State<Home> {
     if (tupperware.isEmpty) {
       // + Task(s)
       List<Map<String, dynamic>> task = Tasuku.GET();
-      await DBHelper.SAVE(widget.namae, task);
-      tupperware = await DBHelper.FETCHI(widget.namae);
+      await DBHelper.SAVE(widget.username, task);
+      tupperware = await DBHelper.FETCH(widget.username);
     }
 
     setState(() {
-      tasuku = tupperware;
-      chekku = tupperware.map((task) => task['Chekku'] == 1).toList();
+      task = tupperware;
+      check = tupperware.map((task) => task['Chekku'] == 1).toList();
     });
   }
 
   // Check Task(s)
-  Future<void> Chekku(int index) async {
-    await DBHelper.CHEKKU(tasuku[index]['TasukuID'], widget.namae);
+  Future<void> Check(int index) async {
+    await DBHelper.CHECK(task[index]['TasukuID'], widget.username);
 
-    int EXP = await DBHelper.GET_XP(widget.namae);
+    int EXP = await DBHelper.GET_XP(widget.username);
 
     setState(() {
-      chekku[index] = true;
+      check[index] = true;
       XP = EXP;
     });
   }
 
   // Calc.
-  Duration _taimu() {
+  Duration _duration() {
     final now = DateTime.now();
     final midnight = DateTime(now.year, now.month, now.day + 1);
     return midnight.difference(now);
@@ -84,9 +84,9 @@ class _HomeState extends State<Home> {
 
   // Delete "User"
   Future<void> DELETE(BuildContext context) async {
-    await DBHelper.DELETE(widget.namae);
+    await DBHelper.DELETE(widget.username);
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("❌ ${widget.namae}")),
+      SnackBar(content: Text("❌ ${widget.username}")),
     );
     Navigator.pop(context);
   }
@@ -112,7 +112,7 @@ class _HomeState extends State<Home> {
                   children: [
                     Row(
                       children: [
-                        Text("👋🏻 ${widget.namae} ",
+                        Text("👋🏻 ${widget.username} ",
                             style: TextStyle(fontSize: 18)),
                         Text("$XP",
                             style: TextStyle(
@@ -231,7 +231,7 @@ class _HomeState extends State<Home> {
                     // Task(s)
                     Expanded(
                       child: ListView.builder(
-                        itemCount: tasuku.length,
+                        itemCount: task.length,
                         itemBuilder: (context, index) {
                           return Padding(
                             padding: EdgeInsets.only(
@@ -243,7 +243,7 @@ class _HomeState extends State<Home> {
                               height: 50,
                               child: ElevatedButton(
                                 onPressed:
-                                    chekku[index] ? null : () => Chekku(index),
+                                    check[index] ? null : () => Check(index),
                                 style: ElevatedButton.styleFrom(
                                   foregroundColor: Colors.black,
                                   shape: const RoundedRectangleBorder(
@@ -257,7 +257,7 @@ class _HomeState extends State<Home> {
                                   children: [
                                     // Task Name
                                     Text(
-                                      tasuku[index]['Tasuku'],
+                                      task[index]['Tasuku'],
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500,
@@ -266,7 +266,7 @@ class _HomeState extends State<Home> {
                                     ),
                                     // XP Display
                                     Text(
-                                      "${tasuku[index]['XP']} XP",
+                                      "${task[index]['XP']} XP",
                                       style: const TextStyle(
                                         fontSize: 16,
                                         color: Colors.green,
@@ -283,9 +283,9 @@ class _HomeState extends State<Home> {
 
                     // HH:MM:SS
                     Text(
-                      "${taimu.inHours.toString().padLeft(2, '0')}:"
-                      "${(taimu.inMinutes % 60).toString().padLeft(2, '0')}:"
-                      "${(taimu.inSeconds % 60).toString().padLeft(2, '0')}",
+                      "${duration.inHours.toString().padLeft(2, '0')}:"
+                      "${(duration.inMinutes % 60).toString().padLeft(2, '0')}:"
+                      "${(duration.inSeconds % 60).toString().padLeft(2, '0')}",
                       style: TextStyle(
                           fontSize: 45.5,
                           fontWeight: FontWeight.bold,

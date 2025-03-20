@@ -34,8 +34,8 @@ class Redirect extends StatefulWidget {
 }
 
 class _RedirectState extends State<Redirect> {
-  final TextEditingController namae = TextEditingController();
-  final TextEditingController pasuwado = TextEditingController();
+  final TextEditingController username = TextEditingController();
+  final TextEditingController password = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _obscureText = true;
 
@@ -62,7 +62,7 @@ class _RedirectState extends State<Redirect> {
                   width: 300,
                   height: 55,
                   child: TextFormField(
-                    controller: namae,
+                    controller: username,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8))),
@@ -87,7 +87,7 @@ class _RedirectState extends State<Redirect> {
                           .toUpperCase() // Sanitize
                           .replaceAll(RegExp(r'[^A-Z0-9]'), '');
                       if (purell != value) {
-                        namae.value = namae.value.copyWith(
+                        username.value = username.value.copyWith(
                           text: purell,
                           selection:
                               TextSelection.collapsed(offset: purell.length),
@@ -101,7 +101,7 @@ class _RedirectState extends State<Redirect> {
                   width: 300,
                   height: 55,
                   child: TextFormField(
-                    controller: pasuwado,
+                    controller: password,
                     obscureText: _obscureText,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(
@@ -147,32 +147,32 @@ class _RedirectState extends State<Redirect> {
                     ),
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        String Namae = namae.text;
-                        String Pasuwado = pasuwado.text;
+                        String Username = username.text;
+                        String Password = password.text;
 
                         // GET "User"
-                        Map<String, dynamic>? Yuza = await DBHelper.GET(Namae);
+                        Map<String, dynamic>? Yuza = await DBHelper.GET_USER(Username);
 
                         // IF !"User", CREATE + LOGIN
                         if (Yuza == null) {
-                          await DBHelper.CREATE(Namae, Pasuwado);
+                          await DBHelper.CREATE(Username, Password);
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    Home(namae: Namae)), // PASS "Username"
+                                    Home(username: Username)), // PASS "Username"
                           );
                         } else {
                           // IF "User", Check 🔒 Pasuwādo
-                          bool waPasuwado =
-                              await DBHelper.VALIDATE(Namae, Pasuwado);
+                          bool isPassword =
+                              await DBHelper.VALIDATE(Username, Password);
 
-                          if (waPasuwado) {
+                          if (isPassword) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      Home(namae: Namae)), // PASS "Username"
+                                      Home(username: Username)), // PASS "Username"
                             );
                           } else {
                             // IF Pasuwādo ≠ Yūzā's Pasuwādo
