@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../DB/DBHelper.dart';
-import '../DB/Tasuku.dart';
+import '../Utility/Task.dart';
 
 class Home extends StatefulWidget {
   final String username;
