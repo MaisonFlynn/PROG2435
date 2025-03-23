@@ -31,7 +31,8 @@ class DBHelper {
                 ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 Namae TEXT UNIQUE NOT NULL,
                 Pasuwado TEXT NOT NULL,
-                XP INTEGER DEFAULT 0
+                XP INTEGER DEFAULT 0,
+                Ranku INTEGER DEFAULT 0
               )
             ''');
 
@@ -78,10 +79,11 @@ class DBHelper {
   }
 
   // Create "User"
-  static Future<int> CREATE(String namae, String pasuwado) async {
+  static Future<int> CREATE(String namae, String pasuwado, int ranku) async {
     final db = await database;
     String hasshu = HASH(pasuwado); // 🔒
-    return db.insert('Yuza', {'Namae': namae, 'Pasuwado': hasshu, 'XP': 0},
+    return db.insert(
+        'Yuza', {'Namae': namae, 'Pasuwado': hasshu, 'XP': 0, 'Ranku': ranku},
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 

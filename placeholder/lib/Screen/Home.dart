@@ -52,7 +52,7 @@ class _HomeState extends State<Home> {
 
     if (tupperware.isEmpty) {
       // + Task(s)
-      List<Map<String, dynamic>> task = Tasuku.GET();
+      List<Map<String, dynamic>> task = await Tasuku.GET(widget.username);
       await DBHelper.SAVE(widget.username, task);
       tupperware = await DBHelper.FETCH(widget.username);
     }

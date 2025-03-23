@@ -151,17 +151,77 @@ class _RedirectState extends State<Redirect> {
                         String Password = password.text;
 
                         // GET "User"
-                        Map<String, dynamic>? Yuza = await DBHelper.GET_USER(Username);
+                        Map<String, dynamic>? Yuza =
+                            await DBHelper.GET_USER(Username);
 
                         // IF !"User", CREATE + LOGIN
                         if (Yuza == null) {
-                          await DBHelper.CREATE(Username, Password);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    Home(username: Username)), // PASS "Username"
+                          int? Ranku = await showDialog<int>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Center(
+                                child: Text(
+                                  'RANKU',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 34.125,
+                                  ),
+                                ),
+                              ),
+                              content: SizedBox(
+                                width: 255,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, 1),
+                                      child: const Text(
+                                        '1',
+                                        style: TextStyle(
+                                            color: Colors.green,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 22.75),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, 2),
+                                      child: const Text(
+                                        '2',
+                                        style: TextStyle(
+                                            color: Colors.orange,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 22.75),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, 3),
+                                      child: const Text(
+                                        '3',
+                                        style: TextStyle(
+                                            color: Colors.red,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 22.75),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           );
+                          if (Ranku != null) {
+                            await DBHelper.CREATE(Username, Password, Ranku);
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Home(username: Username),
+                              ),
+                            );
+                          }
                         } else {
                           // IF "User", Check 🔒 Pasuwādo
                           bool isPassword =
@@ -171,8 +231,8 @@ class _RedirectState extends State<Redirect> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      Home(username: Username)), // PASS "Username"
+                                  builder: (context) => Home(
+                                      username: Username)), // PASS "Username"
                             );
                           } else {
                             // IF Pasuwādo ≠ Yūzā's Pasuwādo
