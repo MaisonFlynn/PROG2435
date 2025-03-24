@@ -27,6 +27,9 @@ class _HomeState extends State<Home> {
   int XP = 0;
   int Ranku = 1;
   int HP = 10;
+  final List<String> Throbber = ['⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷'];
+  int Index = 0;
+  Timer? throbber;
 
   @override
   void initState() {
@@ -50,7 +53,8 @@ class _HomeState extends State<Home> {
     final midnight = DateTime(now.year, now.month, now.day + 1);
     final countdown = midnight.difference(now).inSeconds;
 
-    Timer(Duration(seconds: countdown), () async { // Countdown 🔄 5 (Test)
+    Timer(Duration(seconds: countdown), () async {
+      // Countdown 🔄 5 (Test)
       final namae = widget.username;
 
       final user = await DBHelper.GET_USER(namae);
@@ -96,6 +100,14 @@ class _HomeState extends State<Home> {
 
   Future<void> _innit() async {
     setState(() => Loading = true);
+    Index = 0;
+    throbber?.cancel();
+    throbber = Timer.periodic(const Duration(milliseconds: 100), (_) {
+      if (!mounted || !Loading) return;
+      setState(() {
+        Index = (Index + 1) % Throbber.length;
+      });
+    });
 
     final String namae = widget.username;
     final user = await DBHelper.GET_USER(namae);
@@ -136,6 +148,7 @@ class _HomeState extends State<Home> {
     //
     await DBHelper.RANKU(namae, chekku);
 
+    throbber?.cancel();
     if (!mounted) return;
     setState(() {
       task = tupperware;
@@ -175,47 +188,47 @@ class _HomeState extends State<Home> {
     Navigator.pop(context);
   }
 
-  Widget ASCII(int xp, int ranku, int hp, {int width = 10}) {
+  Widget ASCII(int xp, int ranku, int hp) {
+    const int count = 10;
+
     int level = Level.Get(xp, ranku);
     int curr = Level.Formula(level, ranku);
     int next = Level.Formula(level + 1, ranku);
     int y = next - curr;
     int x = xp - curr;
 
-    double pctXP = x / y;
-    int setXP = (pctXP * width).floor();
-    int nullXP = width - setXP;
+    int setXP = (x / y * count).floor().clamp(0, count);
+    int nullXP = count - setXP;
 
-    int setHP = hp.clamp(0, 10);
-    int nullHP = width - setHP;
+    int setHP = hp.clamp(0, count);
+    int nullHP = count - setHP;
 
-    String HP = '${'▮' * setHP}${'▯' * nullHP}';
-    String XP = '${'▮' * setXP}${'▯' * nullXP}';
+    String craft(int filled, int empty) => '▮' * filled + '▯' * empty;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          HP,
-          style: TextStyle(
-            color: Colors.red.shade400,
-            fontFamily: 'monospace',
-            fontSize: 45.5,
-            letterSpacing: -12.5,
-            height: 1.0,
-          ),
-        ),
-        Text(
-          XP,
-          style: const TextStyle(
-            color: Colors.green,
-            fontFamily: 'monospace',
-            fontSize: 45.5,
-            letterSpacing: -12.5,
-          ),
-        ),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double WIDTH = constraints.maxWidth;
+        final double width = WIDTH / count;
+
+        final double fontSize = width * 1.3;
+
+        TextStyle style(Color color) => TextStyle(
+              fontSize: fontSize,
+              fontFamily: 'monospace',
+              color: color,
+              height: 1.2,
+              letterSpacing: -width * 0.3,
+            );
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(craft(setHP, nullHP), style: style(Colors.red)),
+            Text(craft(setXP, nullXP), style: style(Colors.green)),
+          ],
+        );
+      },
     );
   }
 
@@ -389,9 +402,16 @@ class _HomeState extends State<Home> {
                     Expanded(
                       child: Loading
                           ? Center(
-                              child: CircularProgressIndicator(
-                              color: Colors.black,
-                            ))
+                              child: Text(
+                                Throbber[Index],
+                                style: const TextStyle(
+                                  fontSize: 45.5,
+                                  fontFamily: 'monospace',
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue, // ?
+                                ),
+                              ),
+                            )
                           : ListView.builder(
                               itemCount: task.length,
                               itemBuilder: (context, index) {
