@@ -3,6 +3,7 @@ import 'Screen/Home.dart';
 import 'dart:core';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'DB/DBHelper.dart';
+import 'dart:io';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Innit DB
@@ -11,7 +12,34 @@ void main() async {
   databaseFactory = databaseFactoryFfi;
   await DBHelper.PRINT(); // Temporary
 
+  bool ollama = await Ollama();
+  if (!ollama) {
+    await Start();
+  }
+
   runApp(const Placeholder());
+}
+
+Future<bool> Ollama() async {
+  try {
+    final result = await Process.run('pgrep', ['-f', 'ollama run mistral']);
+    return result.exitCode == 0;
+  } catch (_) {
+    return false;
+  }
+}
+
+// Ollama 'Mistral'
+Future<void> Start() async {
+  try {
+    final directory = Platform.environment['USERPROFILE'];
+    final path = '$directory\\AppData\\Local\\Programs\\Ollama\\ollama.exe';
+
+    await Process.start(path, ['run', 'mistral']);
+    print("✔️ Ollama '𝘔𝘪𝘴𝘵𝘳𝘢𝘭'");
+  } catch (e) {
+    print("❌ $e");
+  }
 }
 
 class Placeholder extends StatelessWidget {

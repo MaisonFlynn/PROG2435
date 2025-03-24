@@ -92,7 +92,7 @@ class _HomeState extends State<Home> {
           chekku: chekku,
         );
       } catch (e) {
-        //
+        // Backup
         list = await Tasuku.GET(namae);
       }
 
