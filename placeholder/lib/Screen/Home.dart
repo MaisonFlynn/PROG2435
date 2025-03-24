@@ -149,7 +149,7 @@ class _HomeState extends State<Home> {
     Navigator.pop(context);
   }
 
-  Widget ASCII(int xp, int ranku, {int width = 12}) {
+  Widget ASCII(int xp, int ranku, {int width = 10}) {
     int level = Level.Get(xp, ranku);
     int curr = Level.Formula(level, ranku);
     int next = Level.Formula(level + 1, ranku);
@@ -173,7 +173,8 @@ class _HomeState extends State<Home> {
             color: Colors.red.shade400,
             fontFamily: 'monospace',
             fontSize: 45.5,
-            letterSpacing: -15,
+            letterSpacing: -12.5,
+            height: 1.0,
           ),
         ),
         Text(
@@ -182,7 +183,7 @@ class _HomeState extends State<Home> {
             color: Colors.green,
             fontFamily: 'monospace',
             fontSize: 45.5,
-            letterSpacing: -15,
+            letterSpacing: -12.5,
           ),
         ),
       ],
@@ -266,7 +267,7 @@ class _HomeState extends State<Home> {
                         ),
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 15, vertical: 15),
+                          horizontal: 20, vertical: 20),
                       child: ASCII(Animate.toInt(), Ranku),
                     ),
                   ],
