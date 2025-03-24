@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../DB/DBHelper.dart';
 import '../AI/AIClient.dart';
 import '../Utility/Task.dart';
+import '../Utility/Level.dart';
 
 class Home extends StatefulWidget {
   final String username;
@@ -16,11 +17,14 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   bool Dropdown = false;
   bool Loading = false;
+  double Animate = 0;
+  Timer? Animation;
   List<Map<String, dynamic>> task = [];
   List<bool> check = [];
   late Duration duration;
   late Timer timer;
   int XP = 0;
+  int Ranku = 1;
 
   @override
   void initState() {
@@ -63,6 +67,7 @@ class _HomeState extends State<Home> {
   @override
   void dispose() {
     timer.cancel();
+    Animation?.cancel();
     super.dispose();
   }
 
@@ -77,8 +82,10 @@ class _HomeState extends State<Home> {
     List<Map<String, dynamic>> tupperware = await DBHelper.FETCH(namae);
     final int chekku = tupperware.where((t) => t['Chekku'] == 1).length;
 
+    if (!mounted) return;
     setState(() {
       XP = xp;
+      Ranku = ranku;
     });
 
     if (tupperware.isEmpty) {
@@ -103,6 +110,7 @@ class _HomeState extends State<Home> {
     //
     await DBHelper.RANKU(namae, chekku);
 
+    if (!mounted) return;
     setState(() {
       task = tupperware;
       check = tupperware.map((task) => task['Chekku'] == 1).toList();
@@ -119,6 +127,9 @@ class _HomeState extends State<Home> {
     setState(() {
       check[index] = true;
       XP = EXP;
+      if (!Dropdown) {
+        Animate = EXP.toDouble();
+      }
     });
   }
 
@@ -136,6 +147,46 @@ class _HomeState extends State<Home> {
       SnackBar(content: Text("❌ ${widget.username}")),
     );
     Navigator.pop(context);
+  }
+
+  Widget ASCII(int xp, int ranku, {int width = 12}) {
+    int level = Level.Get(xp, ranku);
+    int curr = Level.Formula(level, ranku);
+    int next = Level.Formula(level + 1, ranku);
+    int y = next - curr;
+    int x = xp - curr;
+
+    double pct = x / y;
+    int Set = (pct * width).floor();
+    int Null = width - Set;
+
+    String XP = '${'▮' * Set}${'▯' * Null}';
+    String HP = '${'▮' * width}'; // Placeholder
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          HP,
+          style: TextStyle(
+            color: Colors.red.shade400,
+            fontFamily: 'monospace',
+            fontSize: 45.5,
+            letterSpacing: -15,
+          ),
+        ),
+        Text(
+          XP,
+          style: const TextStyle(
+            color: Colors.green,
+            fontFamily: 'monospace',
+            fontSize: 45.5,
+            letterSpacing: -15,
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -161,7 +212,7 @@ class _HomeState extends State<Home> {
                       children: [
                         Text("👋🏻 ${widget.username} ",
                             style: TextStyle(fontSize: 18)),
-                        Text("$XP",
+                        Text("${Level.Get(XP, Ranku)}",
                             style: TextStyle(
                               fontSize: 18,
                               color: Colors.green,
@@ -182,6 +233,20 @@ class _HomeState extends State<Home> {
                           onPressed: () {
                             setState(() {
                               Dropdown = !Dropdown;
+                              if (!Dropdown) {
+                                Animation?.cancel();
+                                Animation = Timer.periodic(
+                                    const Duration(milliseconds: 20), (timer) {
+                                  setState(() {
+                                    if ((Animate - XP).abs() < 1) {
+                                      Animate = XP.toDouble();
+                                      timer.cancel();
+                                    } else {
+                                      Animate += (XP - Animate) * 0.1;
+                                    }
+                                  });
+                                });
+                              }
                             });
                           },
                         ),
@@ -193,9 +258,19 @@ class _HomeState extends State<Home> {
 
               // Body
               Expanded(
-                child: Center(
-                    // Temporary
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Center(
+                        //
+                        ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 15),
+                      child: ASCII(Animate.toInt(), Ranku),
                     ),
+                  ],
+                ),
               ),
 
               // Footer
@@ -264,7 +339,7 @@ class _HomeState extends State<Home> {
               bottom: 60,
               child: Container(
                 color: Colors.white,
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(15),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -273,7 +348,7 @@ class _HomeState extends State<Home> {
                       style: TextStyle(
                           fontSize: 45.5, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 15),
 
                     // Task(s)
                     Expanded(
@@ -308,20 +383,18 @@ class _HomeState extends State<Home> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          // Task Name
                                           Text(
                                             task[index]['Tasuku'],
                                             style: const TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 18.2,
                                               fontWeight: FontWeight.w500,
                                               color: Colors.black,
                                             ),
                                           ),
-                                          // XP Display
                                           Text(
                                             "${task[index]['XP']} XP",
                                             style: const TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 18.2,
                                               color: Colors.green,
                                             ),
                                           ),
