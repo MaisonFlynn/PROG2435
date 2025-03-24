@@ -21,7 +21,8 @@ void main() {
                 ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 Namae TEXT UNIQUE NOT NULL,
                 Pasuwado TEXT NOT NULL,
-                XP INTEGER DEFAULT 0
+                XP INTEGER DEFAULT 0,
+								Ranku INTEGER DEFAULT 0
               )
             ''');
 
