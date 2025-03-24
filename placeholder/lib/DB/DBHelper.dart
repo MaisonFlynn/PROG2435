@@ -130,6 +130,20 @@ class DBHelper {
     );
   }
 
+  static Future<void> RANKU(String namae, int chekku) async {
+    final db = await database;
+    final yuza = await GET_USER(namae);
+    int ranku = yuza?['Ranku'] ?? 1;
+
+    if (chekku >= 5 && ranku < 3) {
+      await db.update('Yuza', {'Ranku': ranku + 1},
+          where: 'Namae = ?', whereArgs: [namae]);
+    } else if (chekku <= 1 && ranku > 1) {
+      await db.update('Yuza', {'Ranku': ranku - 1},
+          where: 'Namae = ?', whereArgs: [namae]);
+    }
+  }
+
   // ========================
   // Tasuku Function(s)
   // ========================
@@ -142,13 +156,15 @@ class DBHelper {
     await db.delete('Tasuku', where: 'Namae = ?', whereArgs: [namae]);
 
     for (var tasuku in tasukus) {
-      await db.insert('Tasuku', {
-        "Namae": namae,
-        "TasukuID": tasuku["TasukuID"],
-        "Tasuku": tasuku["Tasuku"],
-        "Chekku": 0,
-        "XP": tasuku["XP"] ?? 0,
-      });
+      if (tasuku["Tasuku"] != null && tasuku["Tasuku"].toString().isNotEmpty) {
+        await db.insert('Tasuku', {
+          "Namae": namae,
+          "TasukuID": tasuku["TasukuID"],
+          "Tasuku": tasuku["Tasuku"],
+          "Chekku": 0,
+          "XP": tasuku["XP"] ?? 0,
+        });
+      }
     }
   }
 

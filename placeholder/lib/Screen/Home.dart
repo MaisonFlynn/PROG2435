@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../DB/DBHelper.dart';
+import '../AI/AIClient.dart';
 import '../Utility/Task.dart';
 
 class Home extends StatefulWidget {
@@ -14,8 +15,9 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool Dropdown = false;
-  late List<Map<String, dynamic>> task;
-  late List<bool> check;
+  bool Loading = false;
+  List<Map<String, dynamic>> task = [];
+  List<bool> check = [];
   late Duration duration;
   late Timer timer;
   int XP = 0;
@@ -24,6 +26,9 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     _innit();
+
+    _Midnight();
+
     duration = _duration(); // Midnight
     timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
       if (mounted) {
@@ -34,32 +39,74 @@ class _HomeState extends State<Home> {
     });
   }
 
+  void _Midnight() {
+    final now = DateTime.now();
+    final midnight = DateTime(now.year, now.month, now.day + 1);
+    final countdown = midnight.difference(now).inSeconds;
+
+    Timer(Duration(seconds: countdown), () async {
+      // ➖ & ➕ Tasuku
+      await DBHelper.RESET(widget.username);
+      await DBHelper.SAVE(widget.username, []);
+
+      setState(() {
+        task = [];
+        check = [];
+      });
+
+      _innit(); // Re-Initialize
+
+      _Midnight(); // Reschedule
+    });
+  }
+
   @override
   void dispose() {
     timer.cancel();
     super.dispose();
   }
 
-  // Fetch/Create Task(s)
   Future<void> _innit() async {
-    List<Map<String, dynamic>> tupperware =
-        await DBHelper.FETCH(widget.username); // Storage
+    setState(() => Loading = true);
 
-    int xp = await DBHelper.GET_XP(widget.username);
+    final String namae = widget.username;
+    final user = await DBHelper.GET_USER(namae);
+    final int xp = user?['XP'] ?? 0;
+    final int ranku = user?['Ranku'] ?? 1;
+
+    List<Map<String, dynamic>> tupperware = await DBHelper.FETCH(namae);
+    final int chekku = tupperware.where((t) => t['Chekku'] == 1).length;
+
     setState(() {
       XP = xp;
     });
 
     if (tupperware.isEmpty) {
-      // + Task(s)
-      List<Map<String, dynamic>> task = await Tasuku.GET(widget.username);
-      await DBHelper.SAVE(widget.username, task);
-      tupperware = await DBHelper.FETCH(widget.username);
+      List<Map<String, dynamic>> list;
+
+      try {
+        final AI = AIClient();
+        list = await AI.Generate(
+          ranku: ranku,
+          xp: xp,
+          chekku: chekku,
+        );
+      } catch (e) {
+        //
+        list = await Tasuku.GET(namae);
+      }
+
+      await DBHelper.SAVE(namae, list);
+      tupperware = await DBHelper.FETCH(namae);
     }
+
+    //
+    await DBHelper.RANKU(namae, chekku);
 
     setState(() {
       task = tupperware;
       check = tupperware.map((task) => task['Chekku'] == 1).toList();
+      Loading = false;
     });
   }
 
@@ -230,55 +277,61 @@ class _HomeState extends State<Home> {
 
                     // Task(s)
                     Expanded(
-                      child: ListView.builder(
-                        itemCount: task.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: EdgeInsets.only(
-                              top: index == 0 ? 0 : 10,
-                              bottom: 10,
-                            ),
-                            child: SizedBox(
-                              width: 300,
-                              height: 50,
-                              child: ElevatedButton(
-                                onPressed:
-                                    check[index] ? null : () => Check(index),
-                                style: ElevatedButton.styleFrom(
-                                  foregroundColor: Colors.black,
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(8)),
+                      child: Loading
+                          ? Center(
+                              child: CircularProgressIndicator(
+                              color: Colors.black,
+                            ))
+                          : ListView.builder(
+                              itemCount: task.length,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: EdgeInsets.only(
+                                    top: index == 0 ? 0 : 10,
+                                    bottom: 10,
                                   ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    // Task Name
-                                    Text(
-                                      task[index]['Tasuku'],
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black,
+                                  child: SizedBox(
+                                    width: 300,
+                                    height: 50,
+                                    child: ElevatedButton(
+                                      onPressed: check[index]
+                                          ? null
+                                          : () => Check(index),
+                                      style: ElevatedButton.styleFrom(
+                                        foregroundColor: Colors.black,
+                                        shape: const RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(8)),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          // Task Name
+                                          Text(
+                                            task[index]['Tasuku'],
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          // XP Display
+                                          Text(
+                                            "${task[index]['XP']} XP",
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.green,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    // XP Display
-                                    Text(
-                                      "${task[index]['XP']} XP",
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.green,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                                  ),
+                                );
+                              },
                             ),
-                          );
-                        },
-                      ),
                     ),
 
                     // HH:MM:SS
