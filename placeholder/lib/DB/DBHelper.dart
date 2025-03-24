@@ -60,10 +60,6 @@ class DBHelper {
     print("📌 $path");
   }
 
-  // ========================
-  // Yūzā Function(s)
-  // ========================
-
   // 🔒 Pasuwādo (SHA-256)
   static String HASH(String pasuwado) {
     return sha256.convert(utf8.encode(pasuwado)).toString();
@@ -143,10 +139,6 @@ class DBHelper {
           where: 'Namae = ?', whereArgs: [namae]);
     }
   }
-
-  // ========================
-  // Tasuku Function(s)
-  // ========================
 
   // Save "Task(s)"
   static Future<void> SAVE(
