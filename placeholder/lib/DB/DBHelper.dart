@@ -32,7 +32,8 @@ class DBHelper {
                 Namae TEXT UNIQUE NOT NULL,
                 Pasuwado TEXT NOT NULL,
                 XP INTEGER DEFAULT 0,
-                Ranku INTEGER DEFAULT 0
+                Ranku INTEGER DEFAULT 0,
+                HP INTEGER DEFAULT 10
               )
             ''');
 
@@ -131,13 +132,16 @@ class DBHelper {
     final yuza = await GET_USER(namae);
     int ranku = yuza?['Ranku'] ?? 1;
 
-    if (chekku >= 5 && ranku < 3) {
-      await db.update('Yuza', {'Ranku': ranku + 1},
-          where: 'Namae = ?', whereArgs: [namae]);
-    } else if (chekku <= 1 && ranku > 1) {
+    if (chekku == 0 && ranku > 1) {
+      // ❌ Tasuku Chekku → ➖ Ranku
       await db.update('Yuza', {'Ranku': ranku - 1},
           where: 'Namae = ?', whereArgs: [namae]);
+    } else if (chekku == 5 && ranku < 3) {
+      // ✔️ 5 Tasuku Chekku → ➕ Ranku
+      await db.update('Yuza', {'Ranku': ranku + 1},
+          where: 'Namae = ?', whereArgs: [namae]);
     }
+    // 🟰 1–4 Tasuku Chekku → 🟰 Ranku
   }
 
   // Save "Task(s)"
@@ -201,5 +205,11 @@ class DBHelper {
       where: 'Namae = ?',
       whereArgs: [namae],
     );
+  }
+
+  // Update "HP"
+  static Future<void> UPDATE_HP(String namae, int hp) async {
+    final db = await database;
+    await db.update('Yuza', {'HP': hp}, where: 'Namae = ?', whereArgs: [namae]);
   }
 }

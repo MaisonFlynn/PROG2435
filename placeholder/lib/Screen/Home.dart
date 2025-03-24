@@ -17,7 +17,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   bool Dropdown = false;
   bool Loading = false;
-  double Animate = 0;
+  double XD = 0; // XP Anime
+  double HD = 10; // HP Anime
   Timer? Animation;
   List<Map<String, dynamic>> task = [];
   List<bool> check = [];
@@ -25,6 +26,7 @@ class _HomeState extends State<Home> {
   late Timer timer;
   int XP = 0;
   int Ranku = 1;
+  int HP = 10;
 
   @override
   void initState() {
@@ -48,18 +50,39 @@ class _HomeState extends State<Home> {
     final midnight = DateTime(now.year, now.month, now.day + 1);
     final countdown = midnight.difference(now).inSeconds;
 
-    Timer(Duration(seconds: countdown), () async {
+    Timer(Duration(seconds: countdown), () async { // Countdown 🔄 5 (Test)
+      final namae = widget.username;
+
+      final user = await DBHelper.GET_USER(namae);
+      final int ranku = user?['Ranku'] ?? 1;
+      final int hp = user?['HP'] ?? 10;
+
+      // Count ✔️ Tasuku
+      final tasuku = await DBHelper.FETCH(namae);
+      final int count = tasuku.where((t) => t['Chekku'] == 1).length;
+
+      // Calc. HP
+      int delta;
+      if (count == 0) {
+        delta = -ranku;
+      } else {
+        delta = 4 - ranku;
+      }
+
+      int HP = (hp + delta).clamp(1, 10);
+      await DBHelper.UPDATE_HP(namae, HP);
+
       // ➖ & ➕ Tasuku
       await DBHelper.RESET(widget.username);
       await DBHelper.SAVE(widget.username, []);
 
+      if (!mounted) return;
       setState(() {
         task = [];
         check = [];
       });
 
       _innit(); // Re-Initialize
-
       _Midnight(); // Reschedule
     });
   }
@@ -78,6 +101,7 @@ class _HomeState extends State<Home> {
     final user = await DBHelper.GET_USER(namae);
     final int xp = user?['XP'] ?? 0;
     final int ranku = user?['Ranku'] ?? 1;
+    final int hp = user?['HP'] ?? 10;
 
     List<Map<String, dynamic>> tupperware = await DBHelper.FETCH(namae);
     final int chekku = tupperware.where((t) => t['Chekku'] == 1).length;
@@ -86,6 +110,8 @@ class _HomeState extends State<Home> {
     setState(() {
       XP = xp;
       Ranku = ranku;
+      HP = hp;
+      HD = hp.toDouble();
     });
 
     if (tupperware.isEmpty) {
@@ -128,7 +154,7 @@ class _HomeState extends State<Home> {
       check[index] = true;
       XP = EXP;
       if (!Dropdown) {
-        Animate = EXP.toDouble();
+        XD = EXP.toDouble();
       }
     });
   }
@@ -149,19 +175,22 @@ class _HomeState extends State<Home> {
     Navigator.pop(context);
   }
 
-  Widget ASCII(int xp, int ranku, {int width = 10}) {
+  Widget ASCII(int xp, int ranku, int hp, {int width = 10}) {
     int level = Level.Get(xp, ranku);
     int curr = Level.Formula(level, ranku);
     int next = Level.Formula(level + 1, ranku);
     int y = next - curr;
     int x = xp - curr;
 
-    double pct = x / y;
-    int Set = (pct * width).floor();
-    int Null = width - Set;
+    double pctXP = x / y;
+    int setXP = (pctXP * width).floor();
+    int nullXP = width - setXP;
 
-    String XP = '${'▮' * Set}${'▯' * Null}';
-    String HP = '${'▮' * width}'; // Placeholder
+    int setHP = hp.clamp(0, 10);
+    int nullHP = width - setHP;
+
+    String HP = '${'▮' * setHP}${'▯' * nullHP}';
+    String XP = '${'▮' * setXP}${'▯' * nullXP}';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -239,11 +268,16 @@ class _HomeState extends State<Home> {
                                 Animation = Timer.periodic(
                                     const Duration(milliseconds: 20), (timer) {
                                   setState(() {
-                                    if ((Animate - XP).abs() < 1) {
-                                      Animate = XP.toDouble();
+                                    bool RIXP = (XD - XP).abs() < 1;
+                                    bool RIHP = (HD - HP).abs() < 0.1;
+
+                                    if (RIXP && RIHP) {
+                                      XD = XP.toDouble();
+                                      HD = HP.toDouble();
                                       timer.cancel();
                                     } else {
-                                      Animate += (XP - Animate) * 0.1;
+                                      if (!RIXP) XD += (XP - XD) * 0.1;
+                                      if (!RIHP) HD += (HP - HD) * 0.1;
                                     }
                                   });
                                 });
@@ -268,7 +302,7 @@ class _HomeState extends State<Home> {
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 20),
-                      child: ASCII(Animate.toInt(), Ranku),
+                      child: ASCII(XD.toInt(), Ranku, HD.toInt()),
                     ),
                   ],
                 ),
