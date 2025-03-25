@@ -75,8 +75,8 @@ class _HomeState extends State<Home> {
         health += 1;
         if (ranku < 3) rank += 1;
       } else {
-      // 🟰
-      health += 1;
+        // 🟰
+        health += 1;
       }
 
       health = health.clamp(1, 10);
