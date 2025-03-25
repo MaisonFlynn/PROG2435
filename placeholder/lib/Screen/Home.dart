@@ -27,9 +27,6 @@ class _HomeState extends State<Home> {
   int XP = 0;
   int Ranku = 1;
   int HP = 10;
-  final List<String> Throbber = ['⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷'];
-  int Index = 0;
-  Timer? throbber;
 
   @override
   void initState() {
@@ -53,41 +50,53 @@ class _HomeState extends State<Home> {
     final midnight = DateTime(now.year, now.month, now.day + 1);
     final countdown = midnight.difference(now).inSeconds;
 
-    Timer(Duration(seconds: countdown), () async {
-      // Countdown 🔄 5 (Test)
+    // Countdown 🔄 # (Test)
+    Timer(Duration(seconds: 10), () async {
       final namae = widget.username;
-
-      final user = await DBHelper.GET_USER(namae);
-      final int ranku = user?['Ranku'] ?? 1;
-      final int hp = user?['HP'] ?? 10;
 
       // Count ✔️ Tasuku
       final tasuku = await DBHelper.FETCH(namae);
       final int count = tasuku.where((t) => t['Chekku'] == 1).length;
 
-      // Calc. HP
-      int delta;
+      final user = await DBHelper.GET_USER(namae);
+      int ranku = user?['Ranku'] ?? 1;
+      int hp = user?['HP'] ?? 10;
+
+      int rank = ranku;
+      int health = hp;
+
+      // Calc. HP & Ranku
       if (count == 0) {
-        delta = -ranku;
+        // ➖
+        health -= ranku;
+        if (ranku > 1) rank -= 1;
+      } else if (count == 5) {
+        // ➕
+        health += 1;
+        if (ranku < 3) rank += 1;
       } else {
-        delta = 4 - ranku;
+      // 🟰
+      health += 1;
       }
 
-      int HP = (hp + delta).clamp(1, 10);
-      await DBHelper.UPDATE_HP(namae, HP);
+      health = health.clamp(1, 10);
 
-      // ➖ & ➕ Tasuku
-      await DBHelper.RESET(widget.username);
-      await DBHelper.SAVE(widget.username, []);
+      await DBHelper.UPDATE_HP(namae, health);
+      await DBHelper.UPDATE_RANKU(namae, rank);
+      await DBHelper.RESET(namae);
+      await DBHelper.SAVE(namae, []);
 
       if (!mounted) return;
       setState(() {
+        HP = health;
+        Ranku = rank;
+        HD = health.toDouble();
         task = [];
         check = [];
       });
 
-      _innit(); // Re-Initialize
-      _Midnight(); // Reschedule
+      _innit();
+      _Midnight();
     });
   }
 
@@ -100,14 +109,6 @@ class _HomeState extends State<Home> {
 
   Future<void> _innit() async {
     setState(() => Loading = true);
-    Index = 0;
-    throbber?.cancel();
-    throbber = Timer.periodic(const Duration(milliseconds: 100), (_) {
-      if (!mounted || !Loading) return;
-      setState(() {
-        Index = (Index + 1) % Throbber.length;
-      });
-    });
 
     final String namae = widget.username;
     final user = await DBHelper.GET_USER(namae);
@@ -145,10 +146,6 @@ class _HomeState extends State<Home> {
       tupperware = await DBHelper.FETCH(namae);
     }
 
-    //
-    await DBHelper.RANKU(namae, chekku);
-
-    throbber?.cancel();
     if (!mounted) return;
     setState(() {
       task = tupperware;
@@ -188,47 +185,53 @@ class _HomeState extends State<Home> {
     Navigator.pop(context);
   }
 
-  Widget ASCII(int xp, int ranku, int hp) {
-    const int count = 10;
-
+  Widget Placeholder(int xp, int ranku, int hp) {
     int level = Level.Get(xp, ranku);
     int curr = Level.Formula(level, ranku);
     int next = Level.Formula(level + 1, ranku);
-    int y = next - curr;
-    int x = xp - curr;
+    double XP = (xp - curr) / (next - curr);
 
-    int setXP = (x / y * count).floor().clamp(0, count);
-    int nullXP = count - setXP;
+    Widget HD(int hp) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: List.generate(10, (index) {
+          bool filled = index < hp;
+          return Expanded(
+            child: Container(
+              height: 50,
+              margin: const EdgeInsets.symmetric(horizontal: 2.5),
+              decoration: BoxDecoration(
+                color: filled ? Colors.red : Colors.black12,
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          );
+        }),
+      );
+    }
 
-    int setHP = hp.clamp(0, count);
-    int nullHP = count - setHP;
+    Widget XD(double value) {
+      return Container(
+        height: 50,
+        margin: const EdgeInsets.only(top: 20),
+        decoration: BoxDecoration(
+          color: Colors.black12,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        clipBehavior: Clip.hardEdge,
+        child: LinearProgressIndicator(
+          value: value.clamp(0.0, 1.0),
+          color: Colors.green,
+          backgroundColor: Colors.transparent,
+        ),
+      );
+    }
 
-    String craft(int filled, int empty) => '▮' * filled + '▯' * empty;
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final double WIDTH = constraints.maxWidth;
-        final double width = WIDTH / count;
-
-        final double fontSize = width * 1.3;
-
-        TextStyle style(Color color) => TextStyle(
-              fontSize: fontSize,
-              fontFamily: 'monospace',
-              color: color,
-              height: 1.2,
-              letterSpacing: -width * 0.3,
-            );
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(craft(setHP, nullHP), style: style(Colors.red)),
-            Text(craft(setXP, nullXP), style: style(Colors.green)),
-          ],
-        );
-      },
+    return Column(
+      children: [
+        HD(hp),
+        XD(XP),
+      ],
     );
   }
 
@@ -315,7 +318,7 @@ class _HomeState extends State<Home> {
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 20),
-                      child: ASCII(XD.toInt(), Ranku, HD.toInt()),
+                      child: Placeholder(XD.toInt(), Ranku, HD.toInt()),
                     ),
                   ],
                 ),
@@ -401,16 +404,9 @@ class _HomeState extends State<Home> {
                     // Task(s)
                     Expanded(
                       child: Loading
-                          ? Center(
-                              child: Text(
-                                Throbber[Index],
-                                style: const TextStyle(
-                                  fontSize: 45.5,
-                                  fontFamily: 'monospace',
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue, // ?
-                                ),
-                              ),
+                          ? const Center(
+                              child: CircularProgressIndicator(
+                                  color: Colors.black),
                             )
                           : ListView.builder(
                               itemCount: task.length,

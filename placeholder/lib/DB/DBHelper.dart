@@ -127,21 +127,11 @@ class DBHelper {
     );
   }
 
-  static Future<void> RANKU(String namae, int chekku) async {
+  // Update "Ranku"
+  static Future<void> UPDATE_RANKU(String namae, int ranku) async {
     final db = await database;
-    final yuza = await GET_USER(namae);
-    int ranku = yuza?['Ranku'] ?? 1;
-
-    if (chekku == 0 && ranku > 1) {
-      // ❌ Tasuku Chekku → ➖ Ranku
-      await db.update('Yuza', {'Ranku': ranku - 1},
-          where: 'Namae = ?', whereArgs: [namae]);
-    } else if (chekku == 5 && ranku < 3) {
-      // ✔️ 5 Tasuku Chekku → ➕ Ranku
-      await db.update('Yuza', {'Ranku': ranku + 1},
-          where: 'Namae = ?', whereArgs: [namae]);
-    }
-    // 🟰 1–4 Tasuku Chekku → 🟰 Ranku
+    await db.update('Yuza', {'Ranku': ranku},
+        where: 'Namae = ?', whereArgs: [namae]);
   }
 
   // Save "Task(s)"
