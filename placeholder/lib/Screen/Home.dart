@@ -51,7 +51,7 @@ class _HomeState extends State<Home> {
     final countdown = midnight.difference(now).inSeconds;
 
     // Countdown 🔄 # (Test)
-    Timer(Duration(seconds: 10), () async {
+    Timer(Duration(seconds: countdown), () async {
       final namae = widget.username;
 
       // Count ✔️ Tasuku
