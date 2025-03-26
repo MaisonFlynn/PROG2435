@@ -101,7 +101,7 @@ class _HomeState extends State<Home> {
       int hp = user?['HP'] ?? 10;
       int streak = user?['Streak'] ?? 0;
       String? Active = user?['Active'];
-      DateTime? active = DateTime.now().subtract(Duration(days: 1));
+      DateTime? active = Active != null ? DateTime.tryParse(Active) : null;
 
       int rank = ranku;
       int health = hp;
@@ -229,10 +229,6 @@ class _HomeState extends State<Home> {
 
     int XPrev = XP; // Prev. XP
     int PreLV = Level.Get(XPrev, Ranku); // Prev. LV
-
-    int xp = task[index]['XP'] ?? 0;
-    double multiplier = (1.0 + (Streak * 0.1)).clamp(1.0, 2.0);
-    int XPlus = (xp * multiplier).round();
 
     await DBHelper.CHECK(task[index]['TasukuID'], namae);
     int EXP = await DBHelper.GET_XP(namae); // Next XP
