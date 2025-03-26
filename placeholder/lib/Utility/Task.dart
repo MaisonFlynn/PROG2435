@@ -1,6 +1,7 @@
 import 'dart:math';
 import '../DB/DBHelper.dart';
 
+// Backup IF 🚫AI
 class Tasuku {
   static final List<Map<String, dynamic>> _tasuku = [
     // Ranku 1 (𝘌𝘢𝘴𝘺)
