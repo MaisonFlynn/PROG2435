@@ -187,12 +187,92 @@ class _RedirectState extends State<Redirect> {
                           int? Ranku = await showDialog<int>(
                             context: context,
                             builder: (context) => AlertDialog(
-                              title: const Center(
-                                child: Text(
-                                  'RANKU',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 34.125,
+                              title: Center(
+                                child: RichText(
+                                  text: TextSpan(
+                                    style: const TextStyle(
+                                      fontSize: 34.125,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                    children: [
+                                      const TextSpan(text: 'RANKU '),
+                                      WidgetSpan(
+                                        alignment: PlaceholderAlignment.middle,
+                                        child: MouseRegion(
+                                          cursor: SystemMouseCursors.click,
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              showDialog(
+                                                context: context,
+                                                builder: (_) => AlertDialog(
+                                                  title: Center(
+                                                    child: RichText(
+                                                      text: TextSpan(
+                                                        children: [
+                                                          const TextSpan(
+                                                            text: 'RANKU ',
+                                                            style: TextStyle(
+                                                              fontSize: 34.125,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  Colors.black,
+                                                            ),
+                                                          ),
+                                                          WidgetSpan(
+                                                            alignment:
+                                                                PlaceholderAlignment
+                                                                    .middle,
+                                                            child: Text(
+                                                              'ℹ️',
+                                                              style: TextStyle(
+                                                                fontSize: 25,
+                                                                color: Colors
+                                                                    .black,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  content: const SizedBox(
+                                                    width: 255,
+                                                    child: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Center(
+                                                          child: Text(
+                                                            "PLACEHOLDER",
+                                                            style: TextStyle(
+                                                                fontSize:
+                                                                    22.75),
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            child: const Text(
+                                              'ℹ️',
+                                              style: TextStyle(
+                                                fontSize: 25,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),

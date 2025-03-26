@@ -27,6 +27,44 @@ class _HomeState extends State<Home> {
   int XP = 0;
   int Ranku = 1;
   int HP = 10;
+  int Streak = 0;
+  bool _AI = false;
+
+  void _Streak() {
+    double multiplier = (1.0 + (Streak * 0.1)).clamp(1.0, 2.0);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: SizedBox(
+          width: 200,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "BŌNASU",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 34.125,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 15),
+              Text(
+                "×${multiplier.toStringAsFixed(1)} XP",
+                style: const TextStyle(
+                  fontSize: 22.75,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -61,28 +99,45 @@ class _HomeState extends State<Home> {
       final user = await DBHelper.GET_USER(namae);
       int ranku = user?['Ranku'] ?? 1;
       int hp = user?['HP'] ?? 10;
+      int streak = user?['Streak'] ?? 0;
+      String? Active = user?['Active'];
+      DateTime? active = DateTime.now().subtract(Duration(days: 1));
 
       int rank = ranku;
       int health = hp;
+      int Streak = 0;
+      String? last = Active;
 
       // Calc. HP & Ranku
       if (count == 0) {
         // ➖
         health -= ranku;
         if (ranku > 1) rank -= 1;
-      } else if (count == 5) {
-        // ➕
-        health += 1;
-        if (ranku < 3) rank += 1;
+        Streak = 0;
+        last = null;
       } else {
         // 🟰
         health += 1;
+        if (count == 5 && ranku < 3) rank += 1; // ➕
+
+        // 🔄 Streak
+        final yesterday = DateTime(now.year, now.month, now.day - 1);
+        if (active != null &&
+            active.year == yesterday.year &&
+            active.month == yesterday.month &&
+            active.day == yesterday.day) {
+          Streak = streak + 1;
+        } else {
+          Streak = 1;
+        }
+        last = now.toIso8601String();
       }
 
       health = health.clamp(1, 10);
 
       await DBHelper.UPDATE_HP(namae, health);
       await DBHelper.UPDATE_RANKU(namae, rank);
+      await DBHelper.UPDATE_STREAK(namae, Streak, last);
       await DBHelper.RESET(namae);
       await DBHelper.SAVE(namae, []);
 
@@ -93,9 +148,11 @@ class _HomeState extends State<Home> {
         HD = health.toDouble();
         task = [];
         check = [];
+        _AI = false;
       });
 
-      _innit();
+      await _innit();
+
       _Midnight();
     });
   }
@@ -115,6 +172,7 @@ class _HomeState extends State<Home> {
     final int xp = user?['XP'] ?? 0;
     final int ranku = user?['Ranku'] ?? 1;
     final int hp = user?['HP'] ?? 10;
+    final int streak = user?['Streak'] ?? 0;
 
     List<Map<String, dynamic>> tupperware = await DBHelper.FETCH(namae);
     final int chekku = tupperware.where((t) => t['Chekku'] == 1).length;
@@ -125,25 +183,36 @@ class _HomeState extends State<Home> {
       Ranku = ranku;
       HP = hp;
       HD = hp.toDouble();
+      Streak = streak;
     });
 
-    if (tupperware.isEmpty) {
-      List<Map<String, dynamic>> list;
+    if (tupperware.isEmpty && !_AI) {
+      _AI = true;
 
       try {
-        final AI = AIClient();
-        list = await AI.Generate(
-          ranku: ranku,
-          xp: xp,
-          chekku: chekku,
-        );
-      } catch (e) {
-        // Backup
-        list = await Tasuku.GET(namae);
-      }
+        List<Map<String, dynamic>> list = [];
 
-      await DBHelper.SAVE(namae, list);
-      tupperware = await DBHelper.FETCH(namae);
+        try {
+          final AI = AIClient();
+          list = await AI.Generate(ranku: ranku, xp: xp, chekku: chekku);
+
+          if (list.length < 5 ||
+              list.any((e) => e['Tasuku'] == null || e['XP'] == null)) {
+            throw Exception("⚠️ AI Tasuku");
+          }
+        } catch (e) {
+          list = await Tasuku.GET(namae);
+        }
+
+        if (list.isEmpty) {
+          throw Exception("⚠️ Tasuku");
+        } else {
+          await DBHelper.SAVE(namae, list);
+          tupperware = await DBHelper.FETCH(namae);
+        }
+      } finally {
+        _AI = false;
+      }
     }
 
     if (!mounted) return;
@@ -156,10 +225,20 @@ class _HomeState extends State<Home> {
 
   // Check Task(s)
   Future<void> Check(int index) async {
-    await DBHelper.CHECK(task[index]['TasukuID'], widget.username);
+    final namae = widget.username;
 
-    int EXP = await DBHelper.GET_XP(widget.username);
+    int XPrev = XP; // Prev. XP
+    int PreLV = Level.Get(XPrev, Ranku); // Prev. LV
 
+    int xp = task[index]['XP'] ?? 0;
+    double multiplier = (1.0 + (Streak * 0.1)).clamp(1.0, 2.0);
+    int XPlus = (xp * multiplier).round();
+
+    await DBHelper.CHECK(task[index]['TasukuID'], namae);
+    int EXP = await DBHelper.GET_XP(namae); // Next XP
+    int LVL = Level.Get(EXP, Ranku); // Next LV
+
+    // UI
     setState(() {
       check[index] = true;
       XP = EXP;
@@ -167,6 +246,15 @@ class _HomeState extends State<Home> {
         XD = EXP.toDouble();
       }
     });
+
+    // 🔄 Tasuku (LV+)
+    if (LVL > PreLV) {
+      setState(() => Loading = true);
+      await DBHelper.SAVE(namae, []);
+      setState(() => task = []);
+      _AI = false;
+      await _innit();
+    }
   }
 
   // Calc.
@@ -258,11 +346,24 @@ class _HomeState extends State<Home> {
                       children: [
                         Text("👋🏻 ${widget.username} ",
                             style: TextStyle(fontSize: 18)),
-                        Text("${Level.Get(XP, Ranku)}",
+                        Text("${Level.Get(XP, Ranku)} ",
                             style: TextStyle(
                               fontSize: 18,
                               color: Colors.green,
                             )),
+                        GestureDetector(
+                          onTap: _Streak,
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: Text(
+                              "$Streak",
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.orange,
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                     Row(

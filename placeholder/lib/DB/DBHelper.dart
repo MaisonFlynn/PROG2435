@@ -33,7 +33,9 @@ class DBHelper {
                 Pasuwado TEXT NOT NULL,
                 XP INTEGER DEFAULT 0,
                 Ranku INTEGER DEFAULT 0,
-                HP INTEGER DEFAULT 10
+                HP INTEGER DEFAULT 10,
+                Streak INTEGER DEFAULT 0,
+                Active TEXT
               )
             ''');
 
@@ -171,7 +173,15 @@ class DBHelper {
     );
 
     if (task.isNotEmpty && task.first['Chekku'] == 0) {
-      int earnedXP = task.first['XP'];
+      int xp = task.first['XP'];
+
+      final user = await db.query('Yuza',
+          columns: ['Streak'], where: 'Namae = ?', whereArgs: [namae]);
+      int streak = user.isNotEmpty ? (user.first['Streak'] as int? ?? 0) : 0;
+
+      double multiplier = 1.0 + (streak * 0.1);
+      multiplier = multiplier.clamp(1.0, 2.0); // 2X
+      int EXP = (xp * multiplier).round();
 
       await db.update(
         'Tasuku',
@@ -181,7 +191,7 @@ class DBHelper {
       );
 
       // + XP
-      await UPDATE_XP(namae, earnedXP);
+      await UPDATE_XP(namae, EXP);
     }
   }
 
@@ -201,5 +211,19 @@ class DBHelper {
   static Future<void> UPDATE_HP(String namae, int hp) async {
     final db = await database;
     await db.update('Yuza', {'HP': hp}, where: 'Namae = ?', whereArgs: [namae]);
+  }
+
+  // Update "Streak"
+  static Future<void> UPDATE_STREAK(
+      String namae, int streak, String? active) async {
+    final db = await database;
+    await db.update(
+        'Yuza',
+        {
+          'Streak': streak,
+          'Active': active,
+        },
+        where: 'Namae = ?',
+        whereArgs: [namae]);
   }
 }

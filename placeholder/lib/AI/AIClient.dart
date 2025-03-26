@@ -65,8 +65,8 @@ class AIClient {
 
       📦 𝐅𝐎𝐑𝐌𝐀𝐓 (JSON)
       [
-        {"Task": "DRINK WATER", "XP": 5},
-        {"Task": "READ BOOK", "XP": 10}
+        {"Tasuku": "DRINK WATER", "XP": 5},
+        {"Tasuku": "READ BOOK", "XP": 10}
       ]
     ''';
   }
