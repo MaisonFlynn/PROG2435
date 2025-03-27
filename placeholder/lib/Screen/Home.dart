@@ -194,7 +194,12 @@ class _HomeState extends State<Home> {
 
         try {
           final AI = AIClient();
-          list = await AI.Generate(ranku: ranku, xp: xp, chekku: chekku);
+
+          list = await AI.Generate(ranku: ranku, xp: xp, chekku: chekku)
+              .timeout(const Duration(seconds: 30), onTimeout: () async {
+            debugPrint("⚠️ AI Taimuauto");
+            return await Tasuku.GET(namae);
+          });
 
           if (list.length < 5 ||
               list.any((e) => e['Tasuku'] == null || e['XP'] == null)) {
