@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../Utility/XP.dart';
 
 class AIClient {
   final String url = 'http://localhost:11434/api/generate';
@@ -35,8 +36,8 @@ class AIClient {
             .map<Map<String, dynamic>>((e) => {
                   'TasukuID':
                       DateTime.now().millisecondsSinceEpoch + parsed.indexOf(e),
-                  'Tasuku': e['task'],
-                  'XP': e['xp'],
+                  'Tasuku': e['Task'],
+                  'XP': XPHelper.GetXP(ranku),
                 })
             .toList();
       } catch (e) {
@@ -58,15 +59,10 @@ class AIClient {
       • ALL CAPS.
       • MAX 15 CHARS.
 
-      🌟 𝐗𝐏
-      𝘌𝘈𝘚𝘠 (5–10 XP)
-      𝘔𝘌𝘋. (10–15 XP)
-      𝘏𝘈𝘙𝘋 (15–20 XP)
-
       📦 𝐅𝐎𝐑𝐌𝐀𝐓 (JSON)
       [
-        {"Tasuku": "DRINK WATER", "XP": 5},
-        {"Tasuku": "READ BOOK", "XP": 10}
+        {"Task": "DRINK WATER"},
+        {"Task": "READ BOOK"}
       ]
     ''';
   }
