@@ -42,9 +42,9 @@ class Tasuku {
     {"TasukuID": 30, "Tasuku": "GO OUTSIDE", "Ranku": 3},
   ];
 
-  static Future<List<Map<String, dynamic>>> GET(String namae) async {
+  static Future<List<Map<String, dynamic>>> GetTask(String namae) async {
     final rng = Random(DateTime.now().day);
-    final yuza = await DBHelper.GET_USER(namae);
+    final yuza = await DBHelper.GetUser(namae);
     final int ranku = yuza?['Ranku'] ?? 1;
 
     List<Map<String, dynamic>> filter =

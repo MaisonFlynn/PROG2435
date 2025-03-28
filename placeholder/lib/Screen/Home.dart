@@ -93,10 +93,10 @@ class _HomeState extends State<Home> {
       final namae = widget.username;
 
       // Count ✔️ Tasuku
-      final tasuku = await DBHelper.FETCH(namae);
+      final tasuku = await DBHelper.Fetch(namae);
       final int count = tasuku.where((t) => t['Chekku'] == 1).length;
 
-      final user = await DBHelper.GET_USER(namae);
+      final user = await DBHelper.GetUser(namae);
       int ranku = user?['Ranku'] ?? 1;
       int hp = user?['HP'] ?? 10;
       int streak = user?['Streak'] ?? 0;
@@ -135,11 +135,11 @@ class _HomeState extends State<Home> {
 
       health = health.clamp(1, 10);
 
-      await DBHelper.UPDATE_HP(namae, health);
-      await DBHelper.UPDATE_RANKU(namae, rank);
-      await DBHelper.UPDATE_STREAK(namae, Streak, last);
-      await DBHelper.RESET(namae);
-      await DBHelper.SAVE(namae, []);
+      await DBHelper.UpdateHP(namae, health);
+      await DBHelper.UpdateRank(namae, rank);
+      await DBHelper.UpdateStreak(namae, Streak, last);
+      await DBHelper.Reset(namae);
+      await DBHelper.Save(namae, []);
 
       if (!mounted) return;
       setState(() {
@@ -168,13 +168,13 @@ class _HomeState extends State<Home> {
     setState(() => Loading = true);
 
     final String namae = widget.username;
-    final user = await DBHelper.GET_USER(namae);
+    final user = await DBHelper.GetUser(namae);
     final int xp = user?['XP'] ?? 0;
     final int ranku = user?['Ranku'] ?? 1;
     final int hp = user?['HP'] ?? 10;
     final int streak = user?['Streak'] ?? 0;
 
-    List<Map<String, dynamic>> tupperware = await DBHelper.FETCH(namae);
+    List<Map<String, dynamic>> tupperware = await DBHelper.Fetch(namae);
     final int chekku = tupperware.where((t) => t['Chekku'] == 1).length;
 
     if (!mounted) return;
@@ -198,7 +198,7 @@ class _HomeState extends State<Home> {
           list = await AI.Generate(ranku: ranku, xp: xp, chekku: chekku)
               .timeout(const Duration(seconds: 30), onTimeout: () async {
             debugPrint("⚠️ AI Taimuauto");
-            return await Tasuku.GET(namae);
+            return await Tasuku.GetTask(namae);
           });
 
           if (list.length < 5 ||
@@ -206,14 +206,14 @@ class _HomeState extends State<Home> {
             throw Exception("⚠️ AI Tasuku");
           }
         } catch (e) {
-          list = await Tasuku.GET(namae);
+          list = await Tasuku.GetTask(namae);
         }
 
         if (list.isEmpty) {
           throw Exception("⚠️ Tasuku");
         } else {
-          await DBHelper.SAVE(namae, list);
-          tupperware = await DBHelper.FETCH(namae);
+          await DBHelper.Save(namae, list);
+          tupperware = await DBHelper.Fetch(namae);
         }
       } finally {
         _AI = false;
@@ -235,8 +235,8 @@ class _HomeState extends State<Home> {
     int XPrev = XP; // Prev. XP
     int PreLV = Level.Get(XPrev, Ranku); // Prev. LV
 
-    await DBHelper.CHECK(task[index]['TasukuID'], namae);
-    int EXP = await DBHelper.GET_XP(namae); // Next XP
+    await DBHelper.Check(task[index]['TasukuID'], namae);
+    int EXP = await DBHelper.GetXP(namae); // Next XP
     int LVL = Level.Get(EXP, Ranku); // Next LV
 
     // UI
@@ -251,7 +251,7 @@ class _HomeState extends State<Home> {
     // 🔄 Tasuku (LV+)
     if (LVL > PreLV) {
       setState(() => Loading = true);
-      await DBHelper.SAVE(namae, []);
+      await DBHelper.Save(namae, []);
       setState(() => task = []);
       _AI = false;
       await _innit();
@@ -267,7 +267,7 @@ class _HomeState extends State<Home> {
 
   // Delete "User"
   Future<void> DELETE(BuildContext context) async {
-    await DBHelper.DELETE(widget.username);
+    await DBHelper.Delete(widget.username);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("❌ ${widget.username}")),
     );

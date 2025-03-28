@@ -81,7 +81,7 @@ void main() {
       expect(UNA.every((task) => task['Chekku'] == 1), isTrue, reason: "❓");
 
       // Simulate Midnight
-      await DBHelper.RESET(yuza);
+      await DBHelper.Reset(yuza);
 
       List<Map<String, dynamic>> DOS = await db.query(
         'Tasuku',

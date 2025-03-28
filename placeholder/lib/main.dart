@@ -17,7 +17,7 @@ void main() async {
     databaseFactory = databaseFactoryFfi; // Desktop
   }
 
-  await DBHelper.PRINT(); // Temporary
+  await DBHelper.Print(); // Temporary
 
   if (!kIsWeb) {
     await Ollama(); // Start
@@ -164,7 +164,7 @@ class _RedirectState extends State<Redirect> {
 
                         // GET "User"
                         Map<String, dynamic>? Yuza =
-                            await DBHelper.GET_USER(Username);
+                            await DBHelper.GetUser(Username);
 
                         // IF !"User", CREATE + LOGIN
                         if (Yuza == null) {
@@ -305,7 +305,7 @@ class _RedirectState extends State<Redirect> {
                             ),
                           );
                           if (Ranku != null) {
-                            await DBHelper.CREATE(Username, Password, Ranku);
+                            await DBHelper.Create(Username, Password, Ranku);
 
                             Navigator.push(
                               context,
@@ -317,7 +317,7 @@ class _RedirectState extends State<Redirect> {
                         } else {
                           // IF "User", Check 🔒 Pasuwādo
                           bool isPassword =
-                              await DBHelper.VALIDATE(Username, Password);
+                              await DBHelper.Validate(Username, Password);
 
                           if (isPassword) {
                             Navigator.push(

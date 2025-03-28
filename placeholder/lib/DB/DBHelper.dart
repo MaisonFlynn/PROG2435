@@ -63,7 +63,7 @@ class DBHelper {
   }
 
   // Print "Path"
-static Future<void> PRINT() async {
+static Future<void> Print() async {
   if (kIsWeb) {
     print("IndexedDB");
   } else {
@@ -76,30 +76,30 @@ static Future<void> PRINT() async {
 
 
   // 🔒 Pasuwādo (SHA-256)
-  static String HASH(String pasuwado) {
+  static String Hash(String pasuwado) {
     return sha256.convert(utf8.encode(pasuwado)).toString();
   }
 
   // Validate Pasuwādo
-  static Future<bool> VALIDATE(String namae, String pasuwado) async {
-    final yuza = await GET_USER(namae);
+  static Future<bool> Validate(String namae, String pasuwado) async {
+    final yuza = await GetUser(namae);
     if (yuza == null) return false; // !"User"
 
-    String hasshu = HASH(pasuwado);
+    String hasshu = Hash(pasuwado);
     return yuza['Pasuwado'] == hasshu; // =?
   }
 
   // Create "User"
-  static Future<int> CREATE(String namae, String pasuwado, int ranku) async {
+  static Future<int> Create(String namae, String pasuwado, int ranku) async {
     final db = await database;
-    String hasshu = HASH(pasuwado); // 🔒
+    String hasshu = Hash(pasuwado); // 🔒
     return db.insert(
         'Yuza', {'Namae': namae, 'Pasuwado': hasshu, 'XP': 0, 'Ranku': ranku},
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   // Get "User"
-  static Future<Map<String, dynamic>?> GET_USER(String namae) async {
+  static Future<Map<String, dynamic>?> GetUser(String namae) async {
     final db = await database;
     final result =
         await db.query('Yuza', where: 'Namae = ?', whereArgs: [namae]);
@@ -107,7 +107,7 @@ static Future<void> PRINT() async {
   }
 
   // Get XP
-  static Future<int> GET_XP(String namae) async {
+  static Future<int> GetXP(String namae) async {
     final db = await database;
     final result = await db.query('Yuza',
         columns: ['XP'], where: 'Namae = ?', whereArgs: [namae]);
@@ -115,7 +115,7 @@ static Future<void> PRINT() async {
   }
 
   // Update XP
-  static Future<void> UPDATE_XP(String namae, int xp) async {
+  static Future<void> UpdateXP(String namae, int xp) async {
     final db = await database;
     await db.rawUpdate('''
     UPDATE Yuza 
@@ -125,7 +125,7 @@ static Future<void> PRINT() async {
   }
 
   // Delete "User" & Task(s)
-  static Future<int> DELETE(String namae) async {
+  static Future<int> Delete(String namae) async {
     final db = await database;
 
     await db.delete(
@@ -142,14 +142,14 @@ static Future<void> PRINT() async {
   }
 
   // Update "Ranku"
-  static Future<void> UPDATE_RANKU(String namae, int ranku) async {
+  static Future<void> UpdateRank(String namae, int ranku) async {
     final db = await database;
     await db.update('Yuza', {'Ranku': ranku},
         where: 'Namae = ?', whereArgs: [namae]);
   }
 
   // Save "Task(s)"
-  static Future<void> SAVE(
+  static Future<void> Save(
       String namae, List<Map<String, dynamic>> tasukus) async {
     final db = await database;
 
@@ -169,13 +169,13 @@ static Future<void> PRINT() async {
   }
 
   // Fetch "Task(s)"
-  static Future<List<Map<String, dynamic>>> FETCH(String namae) async {
+  static Future<List<Map<String, dynamic>>> Fetch(String namae) async {
     final db = await database;
     return await db.query('Tasuku', where: 'Namae = ?', whereArgs: [namae]);
   }
 
   // Check "Task(s)" (DONE)
-  static Future<void> CHECK(int tasukuID, String namae) async {
+  static Future<void> Check(int tasukuID, String namae) async {
     final db = await database;
 
     List<Map<String, dynamic>> task = await db.query(
@@ -203,12 +203,12 @@ static Future<void> PRINT() async {
       );
 
       // + XP
-      await UPDATE_XP(namae, EXP);
+      await UpdateXP(namae, EXP);
     }
   }
 
   // Reset "Task(s)" (Midnight)
-  static Future<void> RESET(String namae) async {
+  static Future<void> Reset(String namae) async {
     final db = await database;
 
     await db.update(
@@ -220,13 +220,13 @@ static Future<void> PRINT() async {
   }
 
   // Update "HP"
-  static Future<void> UPDATE_HP(String namae, int hp) async {
+  static Future<void> UpdateHP(String namae, int hp) async {
     final db = await database;
     await db.update('Yuza', {'HP': hp}, where: 'Namae = ?', whereArgs: [namae]);
   }
 
   // Update "Streak"
-  static Future<void> UPDATE_STREAK(
+  static Future<void> UpdateStreak(
       String namae, int streak, String? active) async {
     final db = await database;
     await db.update(
