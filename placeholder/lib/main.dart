@@ -1,45 +1,29 @@
 import 'package:flutter/material.dart';
 import 'Screen/Home.dart';
 import 'dart:core';
+import 'package:flutter/foundation.dart'; // kIsWeb
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'DB/DBHelper.dart';
-import 'dart:io';
+import 'Utility/Llama.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Innit DB
 
-  sqfliteFfiInit();
-  databaseFactory = databaseFactoryFfi;
+  if (kIsWeb) {
+    databaseFactory = databaseFactoryFfiWeb; // Web
+  } else {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi; // Desktop
+  }
+
   await DBHelper.PRINT(); // Temporary
 
-  bool ollama = await Ollama();
-  if (!ollama) {
-    await Start();
+  if (!kIsWeb) {
+    await Ollama(); // Start
   }
 
   runApp(const Placeholder());
-}
-
-Future<bool> Ollama() async {
-  try {
-    final result = await Process.run('pgrep', ['-f', 'ollama run mistral']);
-    return result.exitCode == 0;
-  } catch (_) {
-    return false;
-  }
-}
-
-// Ollama 'Mistral'
-Future<void> Start() async {
-  try {
-    final directory = Platform.environment['USERPROFILE'];
-    final path = '$directory\\AppData\\Local\\Programs\\Ollama\\ollama.exe';
-
-    await Process.start(path, ['run', 'mistral']);
-    print("✔️ Ollama '𝘔𝘪𝘴𝘵𝘳𝘢𝘭'");
-  } catch (e) {
-    print("❌ $e");
-  }
 }
 
 class Placeholder extends StatelessWidget {

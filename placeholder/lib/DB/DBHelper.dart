@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart'; // kIsWeb
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:path/path.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
@@ -17,51 +19,61 @@ class DBHelper {
   }
 
   static Future<Database> _initDB() async {
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
+    if (kIsWeb) {
+      databaseFactory = databaseFactoryFfiWeb;
+    } else {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+    }
 
-    final path = join(await getDatabasesPath(), 'Detabesu.db'); // Detabase
-    return await databaseFactory.openDatabase(path,
-        options: OpenDatabaseOptions(
-          version: 2, // ++
-          onCreate: (db, version) async {
-            // Create "User" Table
-            await db.execute('''
-              CREATE TABLE Yuza (
-                ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                Namae TEXT UNIQUE NOT NULL,
-                Pasuwado TEXT NOT NULL,
-                XP INTEGER DEFAULT 0,
-                Ranku INTEGER DEFAULT 0,
-                HP INTEGER DEFAULT 10,
-                Streak INTEGER DEFAULT 0,
-                Active TEXT
-              )
-            ''');
+    final path =
+        kIsWeb ? 'Detabesu.db' : join(await getDatabasesPath(), 'Detabesu.db');
 
-            // Create "Task(s)" Table
-            await db.execute('''
-              CREATE TABLE Tasuku (
-                ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                Namae TEXT NOT NULL,
-                TasukuID INTEGER NOT NULL,
-                Tasuku TEXT NOT NULL,
-                Chekku INTEGER DEFAULT 0,
-                XP INTEGER DEFAULT 0
-              )
-            ''');
-          },
-        ));
+    return await databaseFactory.openDatabase(
+      path,
+      options: OpenDatabaseOptions(
+        version: 2,
+        onCreate: (db, version) async {
+          await db.execute('''
+          CREATE TABLE Yuza (
+            ID INTEGER PRIMARY KEY AUTOINCREMENT,
+            Namae TEXT UNIQUE NOT NULL,
+            Pasuwado TEXT NOT NULL,
+            XP INTEGER DEFAULT 0,
+            Ranku INTEGER DEFAULT 0,
+            HP INTEGER DEFAULT 10,
+            Streak INTEGER DEFAULT 0,
+            Active TEXT
+          )
+        ''');
+
+          await db.execute('''
+          CREATE TABLE Tasuku (
+            ID INTEGER PRIMARY KEY AUTOINCREMENT,
+            Namae TEXT NOT NULL,
+            TasukuID INTEGER NOT NULL,
+            Tasuku TEXT NOT NULL,
+            Chekku INTEGER DEFAULT 0,
+            XP INTEGER DEFAULT 0
+          )
+        ''');
+        },
+      ),
+    );
   }
 
   // Print "Path"
-  static Future<void> PRINT() async {
+static Future<void> PRINT() async {
+  if (kIsWeb) {
+    print("IndexedDB");
+  } else {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
-
     String path = join(await getDatabasesPath(), 'Detabesu.db');
     print("📌 $path");
   }
+}
+
 
   // 🔒 Pasuwādo (SHA-256)
   static String HASH(String pasuwado) {
