@@ -195,7 +195,12 @@ class _HomeState extends State<Home> {
         try {
           final AI = AIClient();
 
-          list = await AI.Generate(ranku: ranku, xp: xp, chekku: chekku)
+          final String? goru = await DBHelper.GetGoal(namae);
+          list = await AI.Generate(
+                  ranku: ranku,
+                  xp: xp,
+                  chekku: chekku,
+                  goru: goru ?? "Everything")
               .timeout(const Duration(seconds: 30), onTimeout: () async {
             debugPrint("⚠️ AI Taimuauto");
             return await Tasuku.GetTask(namae);

@@ -305,14 +305,58 @@ class _RedirectState extends State<Redirect> {
                             ),
                           );
                           if (Ranku != null) {
-                            await DBHelper.Create(Username, Password, Ranku);
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Home(username: Username),
+                            // Goal?
+                            String? Goru = await showDialog<String>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Center(
+                                  child: Text(
+                                    "GŌRU",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 34.125,
+                                    ),
+                                  ),
+                                ),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    'BODY',
+                                    'MIND',
+                                    'SOUL',
+                                  ].map((goru) {
+                                    return MouseRegion(
+                                      cursor: SystemMouseCursors.click,
+                                      child: GestureDetector(
+                                        behavior: HitTestBehavior.translucent,
+                                        onTap: () =>
+                                            Navigator.pop(context, goru),
+                                        child: Text(
+                                          goru,
+                                          style: const TextStyle(
+                                            fontSize: 22.75,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
                               ),
                             );
+                            if (Goru != null) {
+                              await DBHelper.Create(Username, Password, Ranku);
+                              await DBHelper.UpdateGoal(
+                                  Username, Goru); // 💾 Goal
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      Home(username: Username),
+                                ),
+                              );
+                            }
                           }
                         } else {
                           // IF "User", Check 🔒 Pasuwādo

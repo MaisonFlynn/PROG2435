@@ -10,8 +10,9 @@ class AIClient {
     required int ranku,
     required int xp,
     required int chekku,
+    required String goru,
   }) async {
-    final prompt = Prompt(ranku: ranku, xp: xp, chekku: chekku);
+    final prompt = Prompt(ranku: ranku, xp: xp, chekku: chekku, goru: goru);
 
     final response = await http.post(
       Uri.parse(url),
@@ -49,9 +50,13 @@ class AIClient {
   }
 
   // !
-  String Prompt({required int ranku, required int xp, required int chekku}) {
+  String Prompt({required int ranku, required int xp, required int chekku, required String goru}) {
     return '''
-      𝐆𝐄𝐍𝐄𝐑𝐀𝐓𝐄 𝟓 𝐒𝐄𝐋𝐅-𝐂𝐀𝐑𝐄 𝐓𝐀𝐒𝐊𝐒!
+      𝐆𝐄𝐍𝐄𝐑𝐀𝐓𝐄 𝟓 𝐒𝐄𝐋𝐅-𝐂𝐀𝐑𝐄 𝐓𝐀𝐒𝐊𝐒 𝐅𝐎𝐑 𝐔𝐒𝐄𝐑'𝐒 𝐆𝐎𝐀𝐋: $goru!
+
+      💪🏻 𝐁𝐎𝐃𝐘 (e.g. EXERCISE, SLEEP, HYDRATION)
+      🧠 𝐌𝐈𝐍𝐃 (e.g. MEDITATE, READ, JOURNAL)
+      🫀 𝐒𝐎𝐔𝐋 (e.g. SOCIAL, DETOX, CLEAN)
 
       𝐃𝐈𝐅𝐅𝐈𝐂𝐔𝐋𝐓𝐘 ${ranku == 1 ? 'EASY' : ranku == 2 ? 'MED' : 'HARD'}
 

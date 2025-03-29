@@ -43,7 +43,8 @@ class DBHelper {
             Ranku INTEGER DEFAULT 0,
             HP INTEGER DEFAULT 10,
             Streak INTEGER DEFAULT 0,
-            Active TEXT
+            Active TEXT,
+            Goru TEXT
           )
         ''');
 
@@ -63,17 +64,16 @@ class DBHelper {
   }
 
   // Print "Path"
-static Future<void> Print() async {
-  if (kIsWeb) {
-    print("IndexedDB");
-  } else {
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-    String path = join(await getDatabasesPath(), 'Detabesu.db');
-    print("📌 $path");
+  static Future<void> Print() async {
+    if (kIsWeb) {
+      print("IndexedDB");
+    } else {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+      String path = join(await getDatabasesPath(), 'Detabesu.db');
+      print("📌 $path");
+    }
   }
-}
-
 
   // 🔒 Pasuwādo (SHA-256)
   static String Hash(String pasuwado) {
@@ -237,5 +237,20 @@ static Future<void> Print() async {
         },
         where: 'Namae = ?',
         whereArgs: [namae]);
+  }
+
+  // Update "Goal"
+  static Future<void> UpdateGoal(String namae, String goru) async {
+    final db = await database;
+    await db.update('Yuza', {'Goru': goru},
+        where: 'Namae = ?', whereArgs: [namae]);
+  }
+
+// Get "Goal"
+  static Future<String?> GetGoal(String namae) async {
+    final db = await database;
+    final result = await db.query('Yuza',
+        columns: ['Goru'], where: 'Namae = ?', whereArgs: [namae]);
+    return result.isNotEmpty ? result.first['Goru'] as String? : null;
   }
 }
