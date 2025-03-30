@@ -85,9 +85,9 @@ $ExampleString
 
 𝐈𝐍𝐒𝐓𝐑𝐔𝐂𝐓𝐈𝐎𝐍𝐒:
 • UPPERCASE
-• MAX 15 CHARACTERS, 2 WORDS
-• JSON
-• NO EXPLANATION, NO EXTRA TEXT
+• MAX 2 WORDS
+• FORMATTED JSON
+• NO EXPLANATION
 
 𝐑𝐄𝐓𝐔𝐑𝐍 𝑶𝑵𝑳𝒀 𝐅𝐎𝐑𝐌𝐀𝐓 𝐉𝐒𝐎𝐍:
 [
