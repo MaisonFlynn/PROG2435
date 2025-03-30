@@ -61,8 +61,75 @@ class AIClient {
     required int chekku,
     required String goru,
   }) {
-    return '''
+    String Goal;
+    String Example;
 
+    switch (goru) {
+      case '💪🏻':
+        Goal = 'BODY';
+        Example = '''
+[
+  {"task": "20 SQUATS"},
+  {"task": "10 PUSHUPS"},
+  {"task": "15 MIN WALK"},
+  {"task": "1 MIN PLANK"},
+  {"task": "LEG STRETCH"}
+]
+''';
+        break;
+      case '🧠':
+        Goal = 'MIND';
+        Example = '''
+[
+  {"task": "READ 10 PAGES"},
+  {"task": "3 PUZZLES"},
+  {"task": "LEARN 1 TOPIC"},
+  {"task": "NO PHONE 1H"},
+  {"task": "PLAN WEEK"}
+]
+''';
+        break;
+      case '🫀':
+        Goal = 'SOUL';
+        Example = '''
+[
+  {"task": "GRATITUDE LIST"},
+  {"task": "5 MIN MEDITATE"},
+  {"task": "LISTEN MUSIC"},
+  {"task": "GIVE COMPLIMENT"},
+  {"task": "DEEP BREATHS"}
+]
+''';
+        break;
+      default:
+        Goal = '';
+        Example = '''
+[
+  {"task": "DRINK WATER"},
+  {"task": "WALK OUTSIDE"},
+  {"task": "STRETCH ARMS"},
+  {"task": "EAT FRUIT"},
+  {"task": "SLEEP EARLY"}
+]
+''';
+    }
+
+    String Difficulty = {
+      1: 'EASY',
+      2: 'MED.',
+      3: 'HARD',
+    }[ranku]!;
+
+    return '''
+𝐆𝐄𝐍𝐄𝐑𝐀𝐓𝐄 𝐄𝐗𝐀𝐂𝐓𝐋𝐘 𝟓 𝐔𝐍𝐈𝐐𝐔𝐄 & $Difficulty 𝐒𝐄𝐋𝐅-𝐂𝐀𝐑𝐄 𝐓𝐀𝐒𝐊𝐒 𝐅𝐎𝐑 𝐔𝐒𝐄𝐑'𝐒 𝐆𝐎𝐀𝐋: $Goal
+
+𝐑𝐔𝐋𝐄𝐒:
+• ≤ 15 CHARACTERS
+• UPPERCASE
+• 𝐍𝐎 EXTRA TEXT
+• RETURN 𝐎𝐍𝐋𝐘 JSON:
+
+$Example
 ''';
   }
 }

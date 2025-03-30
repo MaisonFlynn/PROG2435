@@ -311,36 +311,52 @@ class _RedirectState extends State<Redirect> {
                               builder: (context) => AlertDialog(
                                 title: const Center(
                                   child: Text(
-                                    "GŌRU",
+                                    'GŌRU',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 34.125,
+                                      color: Colors.black,
                                     ),
                                   ),
                                 ),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    'BODY',
-                                    'MIND',
-                                    'SOUL',
-                                  ].map((goru) {
-                                    return MouseRegion(
-                                      cursor: SystemMouseCursors.click,
-                                      child: GestureDetector(
-                                        behavior: HitTestBehavior.translucent,
-                                        onTap: () =>
-                                            Navigator.pop(context, goru),
-                                        child: Text(
-                                          goru,
-                                          style: const TextStyle(
+                                content: SizedBox(
+                                  width: 255,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, '💪🏻'),
+                                        child: const Text(
+                                          '💪🏻',
+                                          style: TextStyle(
                                             fontSize: 22.75,
                                           ),
                                         ),
                                       ),
-                                    );
-                                  }).toList(),
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, '🧠'),
+                                        child: const Text(
+                                          '🧠',
+                                          style: TextStyle(
+                                            fontSize: 22.75,
+                                          ),
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, '🫀'),
+                                        child: const Text(
+                                          '🫀',
+                                          style: TextStyle(
+                                            fontSize: 22.75,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             );
