@@ -31,7 +31,7 @@ class AIClient {
       final result = jsonDecode(response.body);
       final content = result['response'].trim();
 
-      print(content);
+      // print(content);
 
       final RegEx = RegExp(r'\[.*\]', dotAll: true).firstMatch(content);
       if (RegEx == null) throw Exception("⚠️ JSON");
