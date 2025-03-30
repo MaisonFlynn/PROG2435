@@ -206,8 +206,7 @@ class _HomeState extends State<Home> {
             return await Tasuku.GetTask(namae);
           });
 
-          if (list.length < 5 ||
-              list.any((e) => e['Tasuku'] == null || e['XP'] == null)) {
+          if (list.length < 5 || list.any((e) => e['Tasuku'] == null)) {
             throw Exception("⚠️ AI Tasuku");
           }
         } catch (e) {

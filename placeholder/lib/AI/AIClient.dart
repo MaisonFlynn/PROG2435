@@ -14,6 +14,8 @@ class AIClient {
   }) async {
     final prompt = Prompt(ranku: ranku, xp: xp, chekku: chekku, goru: goru);
 
+    // print('$prompt');
+
     final response = await http.post(
       Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
@@ -29,46 +31,72 @@ class AIClient {
       final result = jsonDecode(response.body);
       final content = result['response'].trim();
 
-      // print('$content');
+      print(content);
 
-      try {
-        final List<dynamic> parsed = jsonDecode(content);
-        return parsed
-            .map<Map<String, dynamic>>((e) => {
-                  'TasukuID':
-                      DateTime.now().millisecondsSinceEpoch + parsed.indexOf(e),
-                  'Tasuku': e['Task'],
-                  'XP': XPHelper.GetXP(ranku),
-                })
-            .toList();
-      } catch (e) {
-        throw Exception('⚠️ $content');
-      }
+      final RegEx = RegExp(r'\[.*\]', dotAll: true).firstMatch(content);
+      if (RegEx == null) throw Exception("⚠️ JSON");
+
+      final JSON = RegEx.group(0)!;
+      final List<dynamic> Parse = jsonDecode(JSON);
+
+      return Parse.whereType<Map<String, dynamic>>()
+          .map<Map<String, dynamic>>((e) => {
+                'TasukuID':
+                    DateTime.now().millisecondsSinceEpoch + Parse.indexOf(e),
+                'Tasuku':
+                    (e['Task'] ?? e['task'])?.toString().toUpperCase() ?? '',
+                'XP': XPHelper.GetXP(ranku),
+              })
+          .where((t) => t['Tasuku'].isNotEmpty)
+          .toList();
     } else {
       throw Exception('⚠️ ${response.statusCode}');
     }
   }
 
   // !
-  String Prompt({required int ranku, required int xp, required int chekku, required String goru}) {
+  String Prompt({
+    required int ranku,
+    required int xp,
+    required int chekku,
+    required String goru,
+  }) {
+    final Example = {
+      'BODY': ['STRETCH', 'RUN', 'HYDRATE'],
+      'MIND': ['READ', 'JOURNAL', 'LEARN'],
+      'SOUL': ['MEDITATE', 'SMILE', 'PRAY'],
+    };
+
+    final Difficulty = {
+          1: 'EASY',
+          2: 'MED.',
+          3: 'HARD',
+        }[ranku] ??
+        'EASY';
+
+    final Examples = Example[goru.toUpperCase()] ?? Example['ALL']!;
+    final ExampleString = Examples.map((e) => '• $e').join('\n');
+
     return '''
-      𝐆𝐄𝐍𝐄𝐑𝐀𝐓𝐄 𝟓 𝐒𝐄𝐋𝐅-𝐂𝐀𝐑𝐄 𝐓𝐀𝐒𝐊𝐒 𝐅𝐎𝐑 𝐔𝐒𝐄𝐑'𝐒 𝐆𝐎𝐀𝐋: $goru!
+𝐆𝐄𝐍𝐄𝐑𝐀𝐓𝐄 𝟓 $Difficulty 𝐒𝐄𝐋𝐅-𝐂𝐀𝐑𝐄 𝐓𝐀𝐒𝐊𝐒 𝐅𝐎𝐑 𝐔𝐒𝐄𝐑'𝐒 𝐆𝐎𝐀𝐋: $goru
 
-      💪🏻 𝐁𝐎𝐃𝐘 (e.g. EXERCISE, SLEEP, HYDRATION)
-      🧠 𝐌𝐈𝐍𝐃 (e.g. MEDITATE, READ, JOURNAL)
-      🫀 𝐒𝐎𝐔𝐋 (e.g. SOCIAL, DETOX, CLEAN)
+𝐈𝐍𝐒𝐏𝐈𝐑𝐀𝐓𝐈𝐎𝐍:
+$ExampleString
 
-      𝐃𝐈𝐅𝐅𝐈𝐂𝐔𝐋𝐓𝐘 ${ranku == 1 ? 'EASY' : ranku == 2 ? 'MED' : 'HARD'}
+𝐈𝐍𝐒𝐓𝐑𝐔𝐂𝐓𝐈𝐎𝐍𝐒:
+• UPPERCASE
+• MAX 15 CHARACTERS, 2 WORDS
+• JSON
+• NO EXPLANATION, NO EXTRA TEXT
 
-      📝 𝐓𝐀𝐒𝐊
-      • ALL CAPS.
-      • MAX 15 CHARS.
-
-      📦 𝐅𝐎𝐑𝐌𝐀𝐓 (JSON)
-      [
-        {"Task": "DRINK WATER"},
-        {"Task": "READ BOOK"}
-      ]
-    ''';
+𝐑𝐄𝐓𝐔𝐑𝐍 𝑶𝑵𝑳𝒀 𝐅𝐎𝐑𝐌𝐀𝐓 𝐉𝐒𝐎𝐍:
+[
+  {"Task": "TASK 1"},
+  {"Task": "TASK 2"},
+  {"Task": "TASK 3"},
+  {"Task": "TASK 4"},
+  {"Task": "TASK 5"}
+]
+''';
   }
 }
