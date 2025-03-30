@@ -61,42 +61,8 @@ class AIClient {
     required int chekku,
     required String goru,
   }) {
-    final Example = {
-      'BODY': ['STRETCH', 'RUN', 'HYDRATE'],
-      'MIND': ['READ', 'JOURNAL', 'LEARN'],
-      'SOUL': ['MEDITATE', 'SMILE', 'PRAY'],
-    };
-
-    final Difficulty = {
-          1: 'EASY',
-          2: 'MED.',
-          3: 'HARD',
-        }[ranku] ??
-        'EASY';
-
-    final Examples = Example[goru.toUpperCase()] ?? Example['ALL']!;
-    final ExampleString = Examples.map((e) => '• $e').join('\n');
-
     return '''
-𝐆𝐄𝐍𝐄𝐑𝐀𝐓𝐄 𝟓 $Difficulty 𝐒𝐄𝐋𝐅-𝐂𝐀𝐑𝐄 𝐓𝐀𝐒𝐊𝐒 𝐅𝐎𝐑 𝐔𝐒𝐄𝐑'𝐒 𝐆𝐎𝐀𝐋: $goru
 
-𝐈𝐍𝐒𝐏𝐈𝐑𝐀𝐓𝐈𝐎𝐍:
-$ExampleString
-
-𝐈𝐍𝐒𝐓𝐑𝐔𝐂𝐓𝐈𝐎𝐍𝐒:
-• UPPERCASE
-• MAX 2 WORDS
-• FORMATTED JSON
-• NO EXPLANATION
-
-𝐑𝐄𝐓𝐔𝐑𝐍 𝑶𝑵𝑳𝒀 𝐅𝐎𝐑𝐌𝐀𝐓 𝐉𝐒𝐎𝐍:
-[
-  {"Task": "TASK 1"},
-  {"Task": "TASK 2"},
-  {"Task": "TASK 3"},
-  {"Task": "TASK 4"},
-  {"Task": "TASK 5"}
-]
 ''';
   }
 }
