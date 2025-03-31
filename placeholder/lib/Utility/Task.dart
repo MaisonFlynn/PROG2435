@@ -43,7 +43,7 @@ class Tasuku {
   ];
 
   static Future<List<Map<String, dynamic>>> GetTask(String namae) async {
-    final rng = Random(DateTime.now().day);
+    final rng = Random();
     final yuza = await DBHelper.GetUser(namae);
     final int ranku = yuza?['Ranku'] ?? 1;
 

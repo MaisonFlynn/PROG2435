@@ -2,12 +2,26 @@ import 'dart:io';
 
 Future<void> Ollama() async {
   try {
-    final result = await Process.run('pgrep', ['-f', 'ollama run mistral']);
-    if (result.exitCode != 0) {
-      final directory = Platform.environment['USERPROFILE'];
-      final path = '$directory\\AppData\\Local\\Programs\\Ollama\\ollama.exe';
-      await Process.start(path, ['run', 'mistral']);
-      print("✔️ Ollama '𝘔𝘪𝘴𝘵𝘳𝘢𝘭'");
+    // Runnin'?
+    final result = await Process.run('tasklist', []);
+    if (result.stdout.toString().contains('ollama.exe')) {
+      print("⚙️ Ollama");
+      return;
+    }
+
+    final directory = Platform.environment['USERPROFILE'];
+    final path = '$directory\\AppData\\Local\\Programs\\Ollama\\ollama.exe';
+
+    final file = File(path);
+    if (await file.exists()) {
+      await Process.start(
+        path,
+        ['run', 'mistral'],
+        mode: ProcessStartMode.detached,
+      );
+      print("✔️ Ollama");
+    } else {
+      print("❌ Ollama @ $path");
     }
   } catch (e) {
     print("❌ $e");

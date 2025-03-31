@@ -29,6 +29,7 @@ class _HomeState extends State<Home> {
   int HP = 10;
   int Streak = 0;
   bool _AI = false;
+  String Goru = '❓';
 
   void _Streak() {
     double multiplier = (1.0 + (Streak * 0.1)).clamp(1.0, 2.0);
@@ -173,6 +174,7 @@ class _HomeState extends State<Home> {
     final int ranku = user?['Ranku'] ?? 1;
     final int hp = user?['HP'] ?? 10;
     final int streak = user?['Streak'] ?? 0;
+    final String? goru = await DBHelper.GetGoal(namae);
 
     List<Map<String, dynamic>> tupperware = await DBHelper.Fetch(namae);
     final int chekku = tupperware.where((t) => t['Chekku'] == 1).length;
@@ -184,6 +186,7 @@ class _HomeState extends State<Home> {
       HP = hp;
       HD = hp.toDouble();
       Streak = streak;
+      Goru = goru ?? '❓';
     });
 
     if (tupperware.isEmpty && !_AI) {
@@ -195,12 +198,8 @@ class _HomeState extends State<Home> {
         try {
           final AI = AIClient();
 
-          final String? goru = await DBHelper.GetGoal(namae);
           list = await AI.Generate(
-                  ranku: ranku,
-                  xp: xp,
-                  chekku: chekku,
-                  goru: goru ?? "Everything")
+                  ranku: ranku, xp: xp, chekku: chekku, goru: goru ?? "❓")
               .timeout(const Duration(seconds: 30), onTimeout: () async {
             debugPrint("⚠️ AI Taimuauto");
             return await Tasuku.GetTask(namae);
@@ -271,11 +270,52 @@ class _HomeState extends State<Home> {
 
   // Delete "User"
   Future<void> DELETE(BuildContext context) async {
-    await DBHelper.Delete(widget.username);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("❌ ${widget.username}")),
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Center(
+          child: Text(
+            'DELETE?',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 34.125,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        actionsAlignment: MainAxisAlignment.spaceEvenly,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text(
+              'NO',
+              style: TextStyle(
+                fontSize: 22.75,
+                color: Colors.red,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'YES',
+              style: TextStyle(
+                fontSize: 22.75,
+                color: Colors.green,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
-    Navigator.pop(context);
+
+    if (confirm == true) {
+      await DBHelper.Delete(widget.username);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("❌ ${widget.username}")),
+      );
+      Navigator.pop(context);
+    }
   }
 
   Widget Placeholder(int xp, int ranku, int hp) {
@@ -328,6 +368,49 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Future<void> _UpdateGoal() async {
+    String? Goal = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Center(
+          child: Text(
+            'GŌRU',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 34.125,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        content: SizedBox(
+          width: 255,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, '💪🏻'),
+                child: const Text('💪🏻', style: TextStyle(fontSize: 22.75)),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, '🧠'),
+                child: const Text('🧠', style: TextStyle(fontSize: 22.75)),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, '🫀'),
+                child: const Text('🫀', style: TextStyle(fontSize: 22.75)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (Goal != null && Goal != Goru) {
+      await DBHelper.UpdateGoal(widget.username, Goal);
+      setState(() => Goru = Goal);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -352,20 +435,16 @@ class _HomeState extends State<Home> {
                         Text("👋🏻 ${widget.username} ",
                             style: TextStyle(fontSize: 18)),
                         Text("${Level.Get(XP, Ranku)} ",
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.green,
-                            )),
+                            style:
+                                TextStyle(fontSize: 18, color: Colors.green)),
                         GestureDetector(
                           onTap: _Streak,
                           child: MouseRegion(
                             cursor: SystemMouseCursors.click,
                             child: Text(
                               "$Streak",
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.orange,
-                              ),
+                              style:
+                                  TextStyle(fontSize: 18, color: Colors.orange),
                             ),
                           ),
                         ),
@@ -500,10 +579,30 @@ class _HomeState extends State<Home> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text(
-                      "TASUKU",
-                      style: TextStyle(
-                          fontSize: 45.5, fontWeight: FontWeight.bold),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "TASUKU ",
+                          style: const TextStyle(
+                            fontSize: 45.5,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: _UpdateGoal,
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: Text(
+                              Goru,
+                              style: const TextStyle(
+                                fontSize: 34.125,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 15),
 
