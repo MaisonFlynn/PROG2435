@@ -64,181 +64,166 @@ class DBService {
     if (kIsWeb) {
       print("IndexedDB");
     } else {
-      sqfliteFfiInit();
-      databaseFactory = databaseFactoryFfi;
-      String path = join(await getDatabasesPath(), 'Detabesu.db');
+      final path = join(await getDatabasesPath(), 'Detabesu.db');
       print("📌 $path");
     }
   }
 
-  // SHA-256
-  static String EncryptPassword(String pasuwado) {
-    return sha256.convert(utf8.encode(pasuwado)).toString();
+  static String EncryptPassword(String password) {
+    return sha256.convert(utf8.encode(password)).toString();
   }
 
-  static Future<bool> ValidatePassward(String namae, String pasuwado) async {
+  static Future<bool> ValidatePassword(String username, String password) async {
     final db = await database;
     final result =
-        await db.query('Yuza', where: 'Namae = ?', whereArgs: [namae]);
+        await db.query('Yuza', where: 'Namae = ?', whereArgs: [username]);
     if (result.isEmpty) return false;
-
-    String hasshu = EncryptPassword(pasuwado);
-    return result.first['Pasuwado'] == hasshu;
+    return result.first['Pasuwado'] == EncryptPassword(password);
   }
 
   static Future<int> CreateUser(
-      String namae, String pasuwado, int ranku) async {
+      String username, String password, int ranku) async {
     final db = await database;
-    String hasshu = EncryptPassword(pasuwado); // 🔒
     return db.insert(
-        'Yuza', {'Namae': namae, 'Pasuwado': hasshu, 'XP': 0, 'Ranku': ranku},
-        conflictAlgorithm: ConflictAlgorithm.replace);
+      'Yuza',
+      {
+        'Namae': username,
+        'Pasuwado': EncryptPassword(password),
+        'XP': 0,
+        'Ranku': ranku
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
-  static Future<UserModel?> GetUser(String namae) async {
+  static Future<UserModel?> GetUser(String username) async {
     final db = await database;
     final result =
-        await db.query('Yuza', where: 'Namae = ?', whereArgs: [namae]);
-
-    if (result.isNotEmpty) {
-      return UserModel.Deserialize(result.first);
-    }
-    return null;
+        await db.query('Yuza', where: 'Namae = ?', whereArgs: [username]);
+    return result.isNotEmpty ? UserModel.Deserialize(result.first) : null;
   }
 
-  static Future<int> GetXP(String namae) async {
+  static Future<int> GetXP(String username) async {
     final db = await database;
-    final result = await db.query('Yuza',
-        columns: ['XP'], where: 'Namae = ?', whereArgs: [namae]);
+    final result = await db.query(
+      'Yuza',
+      columns: ['XP'],
+      where: 'Namae = ?',
+      whereArgs: [username],
+    );
     return result.isNotEmpty ? result.first['XP'] as int : 0;
   }
 
-  static Future<void> UpdateXP(String namae, int xp) async {
+  static Future<void> UpdateXP(String username, int xp) async {
     final db = await database;
     await db.rawUpdate('''
-    UPDATE Yuza 
-    SET XP = XP + ? 
-    WHERE Namae = ?
-  ''', [xp, namae]);
+      UPDATE Yuza 
+      SET XP = XP + ? 
+      WHERE Namae = ?
+    ''', [xp, username]);
   }
 
-  static Future<int> DeleteUser(String namae) async {
+  static Future<int> DeleteUser(String username) async {
     final db = await database;
-
-    await db.delete(
-      'Tasuku',
-      where: 'Namae = ?',
-      whereArgs: [namae],
-    );
-
-    return await db.delete(
-      'Yuza',
-      where: 'Namae = ?',
-      whereArgs: [namae],
-    );
+    await db.delete('Tasuku', where: 'Namae = ?', whereArgs: [username]);
+    return await db.delete('Yuza', where: 'Namae = ?', whereArgs: [username]);
   }
 
-  static Future<void> UpdateRank(String namae, int ranku) async {
+  static Future<void> UpdateRank(String username, int rank) async {
     final db = await database;
-    await db.update('Yuza', {'Ranku': ranku},
-        where: 'Namae = ?', whereArgs: [namae]);
+    await db.update('Yuza', {'Ranku': rank},
+        where: 'Namae = ?', whereArgs: [username]);
   }
 
   static Future<void> UpdateTask(
-      String namae, List<Map<String, dynamic>> tasukus) async {
+      String username, List<Map<String, dynamic>> tasks) async {
     final db = await database;
-
-    await db.delete('Tasuku', where: 'Namae = ?', whereArgs: [namae]);
-
-    for (var tasuku in tasukus) {
-      if (tasuku["Tasuku"] != null && tasuku["Tasuku"].toString().isNotEmpty) {
+    await db.delete('Tasuku', where: 'Namae = ?', whereArgs: [username]);
+    for (var task in tasks) {
+      if ((task["Tasuku"] ?? '').toString().isNotEmpty) {
         await db.insert('Tasuku', {
-          "Namae": namae,
-          "TasukuID": tasuku["TasukuID"],
-          "Tasuku": tasuku["Tasuku"],
-          "Chekku": 0,
-          "XP": tasuku["XP"] ?? 0,
+          'Namae': username,
+          'TasukuID': task['TasukuID'],
+          'Tasuku': task['Tasuku'],
+          'Chekku': 0,
+          'XP': task['XP'] ?? 0,
         });
       }
     }
   }
 
-  static Future<List<Map<String, dynamic>>> GetTask(String namae) async {
+  static Future<List<Map<String, dynamic>>> GetTask(String username) async {
     final db = await database;
-    return await db.query('Tasuku', where: 'Namae = ?', whereArgs: [namae]);
+    return await db.query('Tasuku', where: 'Namae = ?', whereArgs: [username]);
   }
 
-  static Future<void> TaskCompleted(int tasukuID, String namae) async {
+  static Future<void> TaskCompleted(int taskID, String username) async {
     final db = await database;
 
-    List<Map<String, dynamic>> task = await db.query(
+    final task = await db.query(
       'Tasuku',
       where: 'TasukuID = ? AND Namae = ?',
-      whereArgs: [tasukuID, namae],
+      whereArgs: [taskID, username],
     );
 
     if (task.isNotEmpty && task.first['Chekku'] == 0) {
-      int xp = task.first['XP'];
+      final int xp = task.first['XP'] as int;
 
-      final user = await db.query('Yuza',
-          columns: ['Streak'], where: 'Namae = ?', whereArgs: [namae]);
-      int streak = user.isNotEmpty ? (user.first['Streak'] as int? ?? 0) : 0;
+      final Streak = await db.query(
+        'Yuza',
+        columns: ['Streak'],
+        where: 'Namae = ?',
+        whereArgs: [username],
+      );
 
-      double multiplier = 1.0 + (streak * 0.1);
-      multiplier = multiplier.clamp(1.0, 2.0); // 2X
-      int EXP = (xp * multiplier).round();
+      final streak = Streak.isNotEmpty ? Streak.first['Streak'] ?? 0 : 0;
+      final multiplier = (1.0 + (streak as int) * 0.1).clamp(1.0, 2.0);
+      final int XP = (xp * multiplier).round();
 
       await db.update(
         'Tasuku',
-        {"Chekku": 1},
+        {'Chekku': 1},
         where: 'TasukuID = ? AND Namae = ?',
-        whereArgs: [tasukuID, namae],
+        whereArgs: [taskID, username],
       );
 
-      // + XP
-      await UpdateXP(namae, EXP);
+      await UpdateXP(username, XP);
     }
   }
 
-  static Future<void> DeleteTask(String namae) async {
+  static Future<void> DeleteTask(String username) async {
     final db = await database;
-
-    await db.update(
-      'Tasuku',
-      {"Chekku": 0},
-      where: 'Namae = ?',
-      whereArgs: [namae],
-    );
+    await db.update('Tasuku', {'Chekku': 0},
+        where: 'Namae = ?', whereArgs: [username]);
   }
 
-  static Future<void> UpdateHP(String namae, int hp) async {
+  static Future<void> UpdateHP(String username, int hp) async {
     final db = await database;
-    await db.update('Yuza', {'HP': hp}, where: 'Namae = ?', whereArgs: [namae]);
+    await db.update('Yuza', {'HP': hp},
+        where: 'Namae = ?', whereArgs: [username]);
   }
 
   static Future<void> UpdateStreak(
-      String namae, int streak, String? active) async {
+      String username, int streak, String? active) async {
     final db = await database;
     await db.update(
-        'Yuza',
-        {
-          'Streak': streak,
-          'Active': active,
-        },
-        where: 'Namae = ?',
-        whereArgs: [namae]);
+      'Yuza',
+      {'Streak': streak, 'Active': active},
+      where: 'Namae = ?',
+      whereArgs: [username],
+    );
   }
 
-  static Future<void> UpdateGoal(String namae, String goru) async {
+  static Future<void> UpdateGoal(String username, String goal) async {
     final db = await database;
-    await db.update('Yuza', {'Goru': goru},
-        where: 'Namae = ?', whereArgs: [namae]);
+    await db.update('Yuza', {'Goru': goal},
+        where: 'Namae = ?', whereArgs: [username]);
   }
 
-  static Future<String?> GetGoal(String namae) async {
+  static Future<String?> GetGoal(String username) async {
     final db = await database;
     final result = await db.query('Yuza',
-        columns: ['Goru'], where: 'Namae = ?', whereArgs: [namae]);
+        columns: ['Goru'], where: 'Namae = ?', whereArgs: [username]);
     return result.isNotEmpty ? result.first['Goru'] as String? : null;
   }
 }

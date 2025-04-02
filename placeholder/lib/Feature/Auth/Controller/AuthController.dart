@@ -44,7 +44,7 @@ class AuthController {
       await DBService.UpdateGoal(username, goru);
       return true;
     } else {
-      bool valid = await DBService.ValidatePassward(username, password);
+      bool valid = await DBService.ValidatePassword(username, password);
       if (!valid) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("❌ Pasuwādo")),
