@@ -1,6 +1,6 @@
 import 'dart:math';
 
-class Level {
+class LevelHelper {
   static int Formula(int level, int ranku) {
     if (level <= 1) return 0;
 
@@ -12,7 +12,7 @@ class Level {
     return (xp / 5).round() * 5;
   }
 
-  static int Get(int xp, int ranku) {
+  static int GetLevel(int xp, int ranku) {
     int level = 1;
     while (xp >= Formula(level + 1, ranku)) {
       level++;
@@ -21,13 +21,13 @@ class Level {
   }
 
   static int Remainder(int xp, int ranku) {
-    int curr = Get(xp, ranku);
+    int curr = GetLevel(xp, ranku);
     int next = Formula(curr + 1, ranku);
     return next - xp;
   }
 
   static double Percentage(int xp, int ranku) {
-    int level = Get(xp, ranku);
+    int level = GetLevel(xp, ranku);
     int curr = Formula(level, ranku);
     int next = Formula(level + 1, ranku);
     return (xp - curr) / (next - curr);

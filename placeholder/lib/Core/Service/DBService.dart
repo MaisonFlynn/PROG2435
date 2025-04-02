@@ -4,13 +4,10 @@ import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:path/path.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import '../../Core/Model/UserModel.dart';
 
-class DBHelper {
+class DBService {
   static Database? _database;
-
-  static set Test(Database db) {
-    _database = db;
-  }
 
   static Future<Database> get database async {
     if (_database != null) return _database!;
@@ -63,7 +60,6 @@ class DBHelper {
     );
   }
 
-  // Print "Path"
   static Future<void> Print() async {
     if (kIsWeb) {
       print("IndexedDB");
@@ -75,38 +71,41 @@ class DBHelper {
     }
   }
 
-  // 🔒 Pasuwādo (SHA-256)
-  static String Hash(String pasuwado) {
+  // SHA-256
+  static String EncryptPassword(String pasuwado) {
     return sha256.convert(utf8.encode(pasuwado)).toString();
   }
 
-  // Validate Pasuwādo
-  static Future<bool> Validate(String namae, String pasuwado) async {
-    final yuza = await GetUser(namae);
-    if (yuza == null) return false; // !"User"
+  static Future<bool> ValidatePassward(String namae, String pasuwado) async {
+    final db = await database;
+    final result =
+        await db.query('Yuza', where: 'Namae = ?', whereArgs: [namae]);
+    if (result.isEmpty) return false;
 
-    String hasshu = Hash(pasuwado);
-    return yuza['Pasuwado'] == hasshu; // =?
+    String hasshu = EncryptPassword(pasuwado);
+    return result.first['Pasuwado'] == hasshu;
   }
 
-  // Create "User"
-  static Future<int> Create(String namae, String pasuwado, int ranku) async {
+  static Future<int> CreateUser(
+      String namae, String pasuwado, int ranku) async {
     final db = await database;
-    String hasshu = Hash(pasuwado); // 🔒
+    String hasshu = EncryptPassword(pasuwado); // 🔒
     return db.insert(
         'Yuza', {'Namae': namae, 'Pasuwado': hasshu, 'XP': 0, 'Ranku': ranku},
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  // Get "User"
-  static Future<Map<String, dynamic>?> GetUser(String namae) async {
+  static Future<UserModel?> GetUser(String namae) async {
     final db = await database;
     final result =
         await db.query('Yuza', where: 'Namae = ?', whereArgs: [namae]);
-    return result.isNotEmpty ? result.first : null;
+
+    if (result.isNotEmpty) {
+      return UserModel.Deserialize(result.first);
+    }
+    return null;
   }
 
-  // Get XP
   static Future<int> GetXP(String namae) async {
     final db = await database;
     final result = await db.query('Yuza',
@@ -114,7 +113,6 @@ class DBHelper {
     return result.isNotEmpty ? result.first['XP'] as int : 0;
   }
 
-  // Update XP
   static Future<void> UpdateXP(String namae, int xp) async {
     final db = await database;
     await db.rawUpdate('''
@@ -124,8 +122,7 @@ class DBHelper {
   ''', [xp, namae]);
   }
 
-  // Delete "User" & Task(s)
-  static Future<int> Delete(String namae) async {
+  static Future<int> DeleteUser(String namae) async {
     final db = await database;
 
     await db.delete(
@@ -141,15 +138,13 @@ class DBHelper {
     );
   }
 
-  // Update "Ranku"
   static Future<void> UpdateRank(String namae, int ranku) async {
     final db = await database;
     await db.update('Yuza', {'Ranku': ranku},
         where: 'Namae = ?', whereArgs: [namae]);
   }
 
-  // Save "Task(s)"
-  static Future<void> Save(
+  static Future<void> UpdateTask(
       String namae, List<Map<String, dynamic>> tasukus) async {
     final db = await database;
 
@@ -168,14 +163,12 @@ class DBHelper {
     }
   }
 
-  // Fetch "Task(s)"
-  static Future<List<Map<String, dynamic>>> Fetch(String namae) async {
+  static Future<List<Map<String, dynamic>>> GetTask(String namae) async {
     final db = await database;
     return await db.query('Tasuku', where: 'Namae = ?', whereArgs: [namae]);
   }
 
-  // Check "Task(s)" (DONE)
-  static Future<void> Check(int tasukuID, String namae) async {
+  static Future<void> TaskCompleted(int tasukuID, String namae) async {
     final db = await database;
 
     List<Map<String, dynamic>> task = await db.query(
@@ -207,8 +200,7 @@ class DBHelper {
     }
   }
 
-  // Reset "Task(s)" (Midnight)
-  static Future<void> Reset(String namae) async {
+  static Future<void> DeleteTask(String namae) async {
     final db = await database;
 
     await db.update(
@@ -219,13 +211,11 @@ class DBHelper {
     );
   }
 
-  // Update "HP"
   static Future<void> UpdateHP(String namae, int hp) async {
     final db = await database;
     await db.update('Yuza', {'HP': hp}, where: 'Namae = ?', whereArgs: [namae]);
   }
 
-  // Update "Streak"
   static Future<void> UpdateStreak(
       String namae, int streak, String? active) async {
     final db = await database;
@@ -239,14 +229,12 @@ class DBHelper {
         whereArgs: [namae]);
   }
 
-  // Update "Goal"
   static Future<void> UpdateGoal(String namae, String goru) async {
     final db = await database;
     await db.update('Yuza', {'Goru': goru},
         where: 'Namae = ?', whereArgs: [namae]);
   }
 
-// Get "Goal"
   static Future<String?> GetGoal(String namae) async {
     final db = await database;
     final result = await db.query('Yuza',

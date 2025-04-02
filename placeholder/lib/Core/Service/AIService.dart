@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../Utility/XP.dart';
+import '../Utility/XPHelper.dart';
 
-class AIClient {
+class AIService {
   final String url = 'http://localhost:11434/api/generate';
   final String model = 'mistral';
 
@@ -69,11 +69,11 @@ class AIClient {
         Goal = 'BODY';
         Example = '''
 [
-  {"task": "20 SQUATS"},
-  {"task": "10 PUSHUPS"},
-  {"task": "15 MIN WALK"},
-  {"task": "1 MIN PLANK"},
-  {"task": "LEG STRETCH"}
+  {"task": "STRETCH"},
+  {"task": "PUSH-UPS"},
+  {"task": "COLD SHOWER"},
+  {"task": "WALK 10MIN"},
+  {"task": "RUN 1KM"}
 ]
 ''';
         break;
@@ -81,10 +81,10 @@ class AIClient {
         Goal = 'MIND';
         Example = '''
 [
-  {"task": "READ 10 PAGES"},
-  {"task": "3 PUZZLES"},
-  {"task": "LEARN 1 TOPIC"},
-  {"task": "NO PHONE 1H"},
+  {"task": "MEDITATE"},
+  {"task": "BRAINSTORM"},
+  {"task": "MAKE BED"},
+  {"task": "PRAY"},
   {"task": "PLAN WEEK"}
 ]
 ''';
@@ -93,9 +93,9 @@ class AIClient {
         Goal = 'SOUL';
         Example = '''
 [
-  {"task": "GRATITUDE LIST"},
-  {"task": "5 MIN MEDITATE"},
-  {"task": "LISTEN MUSIC"},
+  {"task": "VOLUNTEER"},
+  {"task": "CALL FAMILY"},
+  {"task": "JOURNAL"},
   {"task": "GIVE COMPLIMENT"},
   {"task": "DEEP BREATHS"}
 ]
