@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import '../../Core/Model/UserModel.dart';
+import 'dart:io';
 
 class DBService {
   static Database? _database;
@@ -24,14 +25,12 @@ class DBService {
       databaseFactory = databaseFactoryFfi;
     }
 
-    String path;
-
-    if (kIsWeb) {
-      path = 'Detabesu.db';
-    } else {
-      final directory = await getApplicationSupportDirectory();
-      path = join(directory.path, 'Detabesu.db');
-    }
+    final path = kIsWeb
+        ? 'Detabesu.db'
+        : join(
+            Directory.current.path,
+            'Detabesu.db',
+          );
 
     return await databaseFactory.openDatabase(
       path,
