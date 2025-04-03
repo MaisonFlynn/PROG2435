@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import '../../Core/Model/UserModel.dart';
 import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class DBService {
   static Database? _database;
@@ -19,24 +20,22 @@ class DBService {
   static Future<Database> _initDB() async {
     if (kIsWeb) {
       databaseFactory = databaseFactoryFfiWeb;
+      return await databaseFactory.openDatabase('Detabesu.db');
     } else {
       sqfliteFfiInit();
       databaseFactory = databaseFactoryFfi;
-    }
 
-    final path = kIsWeb
-        ? 'Detabesu.db'
-        : join(
-            Directory.current.path,
-            'Detabesu.db',
-          );
+      final Directory directory = await getApplicationDocumentsDirectory();
+      final String path = join(directory.path, 'Detabesu.db');
 
-    return await databaseFactory.openDatabase(
-      path,
-      options: OpenDatabaseOptions(
-        version: 1,
-        onCreate: (db, version) async {
-          await db.execute('''
+      print("📌 $path");
+
+      return await databaseFactory.openDatabase(
+        path,
+        options: OpenDatabaseOptions(
+          version: 1,
+          onCreate: (db, version) async {
+            await db.execute('''
           CREATE TABLE Yuza (
             ID INTEGER PRIMARY KEY AUTOINCREMENT,
             Namae TEXT UNIQUE NOT NULL,
@@ -50,7 +49,7 @@ class DBService {
           )
         ''');
 
-          await db.execute('''
+            await db.execute('''
           CREATE TABLE Tasuku (
             ID INTEGER PRIMARY KEY AUTOINCREMENT,
             Namae TEXT NOT NULL,
@@ -60,17 +59,9 @@ class DBService {
             XP INTEGER DEFAULT 0
           )
         ''');
-        },
-      ),
-    );
-  }
-
-  static Future<void> Print() async {
-    if (kIsWeb) {
-      print("IndexedDB");
-    } else {
-      final path = join(await getDatabasesPath(), 'Detabesu.db');
-      print("📌 $path");
+          },
+        ),
+      );
     }
   }
 
