@@ -6,7 +6,7 @@ class LevelHelper {
 
     double base = 22 + (ranku - 1) * 5;
     double exponent = 1.65 + (ranku - 1) * 0.1;
-    double shift = 100 - ranku * 20; // - Shift, + Ranku
+    double shift = 100 - ranku * 20;
 
     double xp = base * pow(level, exponent) + 40 - shift;
     return (xp / 5).round() * 5;

@@ -88,7 +88,7 @@ class UIController {
     if (check.value[index]) return;
 
     await DBService.TaskCompleted(task['TasukuID'], username);
-    await GetTask(); // Refresh entire list
+    await GetTask();
   }
 
   void _StartTimer() {

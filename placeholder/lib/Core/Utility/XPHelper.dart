@@ -12,7 +12,7 @@ class XPHelper {
       case 3:
         return _rng.nextInt(6) + 15; // 15–20 XP
       default:
-        return 5; // Fallback
+        return 5; // Default
     }
   }
 }
