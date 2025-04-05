@@ -25,7 +25,7 @@ class Body extends StatelessWidget {
             child: SizedBox(
               child: ValueListenableBuilder<double>(
                 valueListenable: controller.xp,
-                builder: (_, xp, __) => _XP(xp),
+                builder: (_, xp, __) => XP(xp),
               ),
             ),
           ),
@@ -51,8 +51,27 @@ class Body extends StatelessWidget {
       }),
     );
   }
+}
 
-  Widget _XP(double xpValue) {
+class XP extends StatefulWidget {
+  final double xp;
+  const XP(this.xp, {super.key});
+
+  @override
+  State<XP> createState() => _XPState();
+}
+
+class _XPState extends State<XP> {
+  double exp = 0;
+
+  @override
+  void didUpdateWidget(covariant XP oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    exp = oldWidget.xp;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       height: 50,
       decoration: BoxDecoration(
@@ -60,10 +79,14 @@ class Body extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       clipBehavior: Clip.hardEdge,
-      child: LinearProgressIndicator(
-        value: xpValue.clamp(0.0, 1.0),
-        color: Colors.green,
-        backgroundColor: Colors.transparent,
+      child: TweenAnimationBuilder<double>(
+        duration: const Duration(milliseconds: 500),
+        tween: Tween<double>(begin: exp, end: widget.xp),
+        builder: (_, value, __) => LinearProgressIndicator(
+          value: value.clamp(0.0, 1.0),
+          color: Colors.green,
+          backgroundColor: Colors.transparent,
+        ),
       ),
     );
   }

@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:placeholder/Feature/Home/Controller/HomeController.dart';
 import '../../Core/Service/DBService.dart';
-import '../../Core/Utility/TaskDefault.dart';
 import '../../Core/Service/AIService.dart';
+import '../../Core/Utility/TaskDefault.dart';
+import '../../Core/Service/TimeService.dart';
 
 class UIController {
   final BuildContext context;
   final String username;
+  final HomeController home;
 
   final ValueNotifier<bool> dropdown = ValueNotifier(false);
   final ValueNotifier<List<Map<String, dynamic>>> tasks = ValueNotifier([]);
@@ -15,15 +18,28 @@ class UIController {
   final ValueNotifier<Duration> countdown = ValueNotifier(Duration.zero);
   final ValueNotifier<bool> throbber = ValueNotifier(true);
 
-  UIController({required this.context, required this.username});
+  UIController({
+    required this.context,
+    required this.username,
+    required this.home,
+  });
 
   Future<void> init() async {
     await _GetGoal();
     await GetTask();
-    _StartTimer();
+    TimeService.StartCountdown(countdown);
   }
 
-  void toggle() => dropdown.value = !dropdown.value;
+  void Toggle() {
+    final toggle = dropdown.value;
+    dropdown.value = !dropdown.value;
+
+    if (toggle && !dropdown.value) {
+      Future.delayed(const Duration(seconds: 1), () {
+        home.Refresh();
+      });
+    }
+  }
 
   Future<void> _GetGoal() async {
     goal.value = await DBService.GetGoal(username) ?? '❓';
@@ -62,17 +78,23 @@ class UIController {
 
     if (data.isEmpty) {
       final user = await DBService.GetUser(username);
-      final Default = await TaskDefault.GetTask(username);
+      final fallback = await TaskDefault.GetTask(username);
 
       try {
-        data = await AIService().Generate(
+        data = await AIService()
+            .Generate(
           ranku: user?.rank ?? 1,
           xp: user?.xp ?? 0,
           chekku: 0,
           goru: goal.value,
-        );
+        )
+            .timeout(const Duration(seconds: 30), onTimeout: () async {
+          debugPrint("⚠️ AI");
+          return fallback;
+        });
       } catch (_) {
-        data = Default;
+        debugPrint("⚠️ Default");
+        data = fallback;
       }
 
       await DBService.UpdateTask(username, data);
@@ -89,14 +111,7 @@ class UIController {
 
     await DBService.TaskCompleted(task['TasukuID'], username);
     await GetTask();
-  }
-
-  void _StartTimer() {
-    Timer.periodic(const Duration(seconds: 1), (_) {
-      final now = DateTime.now();
-      final midnight = DateTime(now.year, now.month, now.day + 1);
-      countdown.value = midnight.difference(now);
-    });
+    await home.Refresh();
   }
 
   void ConfirmDelete() async {
@@ -104,46 +119,30 @@ class UIController {
       context: context,
       builder: (_) => AlertDialog(
         title: const Center(
-          child: Text(
-            'DELETE?',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 34.125,
-              color: Colors.black,
-            ),
-          ),
+          child: Text('DELETE?',
+              style: TextStyle(
+                  fontSize: 34.125,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black)),
         ),
         actionsAlignment: MainAxisAlignment.spaceEvenly,
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text(
-              'NO',
-              style: TextStyle(
-                fontSize: 22.75,
-                color: Colors.red,
-              ),
-            ),
-          ),
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('NO',
+                  style: TextStyle(color: Colors.red, fontSize: 22.75))),
           TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'YES',
-              style: TextStyle(
-                fontSize: 22.75,
-                color: Colors.green,
-              ),
-            ),
-          ),
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('YES',
+                  style: TextStyle(color: Colors.green, fontSize: 22.75))),
         ],
       ),
     );
 
     if (confirm == true) {
       await DBService.DeleteUser(username);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("❌ $username")),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("❌ $username")));
       Navigator.pop(context);
     }
   }

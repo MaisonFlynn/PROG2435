@@ -24,7 +24,7 @@ class AuthController {
     if (value == null || value.isEmpty) return '';
     if (value.length < 8) return '';
     if (!RegExp(
-            r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@\$!%*?&])[A-Za-z\d@\$!%*?&]{8,}\$')
+            r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
         .hasMatch(value)) return '';
     return null;
   }

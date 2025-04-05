@@ -63,7 +63,7 @@ class Header extends StatelessWidget {
                         color: Colors.black,
                       ),
                     ),
-                    onPressed: UI.toggle,
+                    onPressed: UI.Toggle,
                   ),
                 ],
               ),

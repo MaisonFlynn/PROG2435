@@ -22,7 +22,8 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     Home = HomeController(context: context, username: widget.username);
-    UI = UIController(context: context, username: widget.username);
+    UI = UIController(context: context, username: widget.username, home: Home);
+    Home.Controller(UI);
     Home.init();
     UI.init();
   }
