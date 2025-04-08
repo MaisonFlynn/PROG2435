@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:placeholder/Feature/Home/Widget/MapBody.dart';
+import 'package:placeholder/Shared/Widget/NewFooter.dart';
 import '../../../Shared/Widget/Header.dart';
-import '../../../Shared/Widget/Footer.dart';
 import '../Widget/Body.dart';
 import '../Controller/HomeController.dart';
 import '../../../Shared/Controller/UIController.dart';
@@ -23,7 +24,6 @@ class _HomeState extends State<Home> {
     super.initState();
     Home = HomeController(context: context, username: widget.username);
     UI = UIController(context: context, username: widget.username, home: Home);
-    Home.Controller(UI);
     Home.init();
     UI.init();
   }
@@ -36,18 +36,27 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              Header(Home, UI),
-              Expanded(child: Body(controller: Home)),
-              Footer(controller: Home),
-            ],
-          ),
-          Dropdown(controller: UI),
-        ],
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        body: Stack(
+          children: [
+            Column(
+              children: [
+                Header(Home, UI),
+                Expanded(
+                    // Tab bar view is necessary to switch between the different screens
+                    child: TabBarView(children: [
+                  Body(controller: Home),
+                  MapBody(controller: Home)
+                ])),
+                // New footer made with the TabBar
+                NewFooter(controller: Home),
+              ],
+            ),
+            Dropdown(controller: UI),
+          ],
+        ),
       ),
     );
   }

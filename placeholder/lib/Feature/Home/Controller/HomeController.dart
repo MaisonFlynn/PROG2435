@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../Core/Service/DBService.dart';
 import '../../../Core/Utility/LevelHelper.dart';
 import '../../../Core/Service/TimeService.dart';
 import '../../../Shared/Controller/UIController.dart';
+import "package:geolocator/geolocator.dart";
 
 class HomeController {
   final BuildContext context;
   final String username;
   UIController? ui;
+
+  LatLng latlng = LatLng(0, 0);
 
   final ValueNotifier<int> level = ValueNotifier(1);
   final ValueNotifier<int> streak = ValueNotifier(0);
@@ -23,6 +27,7 @@ class HomeController {
 
   void init() async {
     await _GetUser();
+    latlng = await getLocation();
     TimeService.StartUpdate(username, Update: _GetUser);
   }
 
@@ -51,5 +56,30 @@ class HomeController {
 
   Future<void> Refresh() async {
     await _GetUser();
+  }
+
+  // Feel free to move to it's own body at some point
+  // This function is exclusively to get the user's lat/long
+  Future<LatLng> getLocation() async {
+    bool locationServicesEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!locationServicesEnabled) {
+      return LatLng(0, 0);
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return LatLng(0, 0);
+      } else if (permission == LocationPermission.deniedForever) {
+        return LatLng(0, 0);
+      } else {
+        Position currentPosition = await Geolocator.getCurrentPosition();
+        return LatLng(currentPosition.latitude, currentPosition.longitude);
+      }
+    } else {
+      Position currentPosition = await Geolocator.getCurrentPosition();
+      return LatLng(currentPosition.latitude, currentPosition.longitude);
+    }
   }
 }
