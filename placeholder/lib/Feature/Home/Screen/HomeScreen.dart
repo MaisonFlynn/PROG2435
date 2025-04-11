@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:placeholder/Feature/Home/Widget/MapBody.dart';
-import 'package:placeholder/Shared/Widget/NewFooter.dart';
+import 'package:placeholder/Feature/Home/Widget/API.dart';
+import 'package:placeholder/Shared/Widget/Footer.dart';
 import '../../../Shared/Widget/Header.dart';
-import '../Widget/Body.dart';
+import '../Widget/Home.dart';
 import '../Controller/HomeController.dart';
 import '../../../Shared/Controller/UIController.dart';
 import '../../../Shared/Widget/Dropdown.dart';
@@ -18,6 +18,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   late final HomeController Home;
   late final UIController UI;
+  int _Index = 0;
 
   @override
   void initState() {
@@ -28,6 +29,12 @@ class _HomeState extends State<Home> {
     UI.init();
   }
 
+  void _Select(int index) {
+    setState(() {
+      _Index = index;
+    });
+  }
+
   @override
   void dispose() {
     Home.dispose();
@@ -36,27 +43,26 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        body: Stack(
-          children: [
-            Column(
-              children: [
-                Header(Home, UI),
-                Expanded(
-                    // Tab bar view is necessary to switch between the different screens
-                    child: TabBarView(children: [
-                  Body(controller: Home),
-                  MapBody(controller: Home)
-                ])),
-                // New footer made with the TabBar
-                NewFooter(controller: Home),
-              ],
-            ),
-            Dropdown(controller: UI),
-          ],
-        ),
+    return Scaffold(
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              Header(Home, UI),
+              Expanded(
+                child: _Index == 0
+                    ? Body(controller: Home)
+                    : MapBody(controller: Home),
+              ),
+              Footer(
+                controller: Home,
+                currentIndex: _Index,
+                onTabSelected: _Select,
+              ),
+            ],
+          ),
+          Dropdown(controller: UI),
+        ],
       ),
     );
   }

@@ -11,7 +11,7 @@ class HomeController {
   final String username;
   UIController? ui;
 
-  LatLng latlng = LatLng(0, 0);
+  LatLng Location = LatLng(0, 0);
 
   final ValueNotifier<int> level = ValueNotifier(1);
   final ValueNotifier<int> streak = ValueNotifier(0);
@@ -27,7 +27,7 @@ class HomeController {
 
   void init() async {
     await _GetUser();
-    latlng = await getLocation();
+    Location = await GetLocation();
     TimeService.StartUpdate(username, Update: _GetUser);
   }
 
@@ -58,11 +58,9 @@ class HomeController {
     await _GetUser();
   }
 
-  // Feel free to move to it's own body at some point
-  // This function is exclusively to get the user's lat/long
-  Future<LatLng> getLocation() async {
-    bool locationServicesEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!locationServicesEnabled) {
+  Future<LatLng> GetLocation() async {
+    bool toggle = await Geolocator.isLocationServiceEnabled();
+    if (!toggle) {
       return LatLng(0, 0);
     }
 
@@ -74,12 +72,12 @@ class HomeController {
       } else if (permission == LocationPermission.deniedForever) {
         return LatLng(0, 0);
       } else {
-        Position currentPosition = await Geolocator.getCurrentPosition();
-        return LatLng(currentPosition.latitude, currentPosition.longitude);
+        Position location = await Geolocator.getCurrentPosition();
+        return LatLng(location.latitude, location.longitude);
       }
     } else {
-      Position currentPosition = await Geolocator.getCurrentPosition();
-      return LatLng(currentPosition.latitude, currentPosition.longitude);
+      Position location = await Geolocator.getCurrentPosition();
+      return LatLng(location.latitude, location.longitude);
     }
   }
 }

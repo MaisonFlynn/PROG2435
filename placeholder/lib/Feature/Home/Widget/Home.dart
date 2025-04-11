@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../Controller/HomeController.dart';
+import '../Asset/Asset.dart';
 
 class Body extends StatelessWidget {
   final HomeController controller;
@@ -11,6 +12,28 @@ class Body extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
+          ValueListenableBuilder<double>(
+            valueListenable: controller.hp,
+            builder: (_, hp, __) {
+              String path;
+
+              if (hp >= 7) {
+                path = Asset.one;
+              } else if (hp >= 4) {
+                path = Asset.two;
+              } else {
+                path = Asset.three;
+              }
+
+              return Center(
+                child: Image.asset(
+                  path,
+                  height: 120,
+                  fit: BoxFit.contain,
+                ),
+              );
+            },
+          ),
           const Spacer(),
           Center(
             child: SizedBox(
