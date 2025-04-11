@@ -20,7 +20,37 @@ class DBService {
   static Future<Database> _initDB() async {
     if (kIsWeb) {
       databaseFactory = databaseFactoryFfiWeb;
-      return await databaseFactory.openDatabase('Detabesu.db');
+      final path = join(await getDatabasesPath(), "Detabesu.db");
+      return await openDatabase(
+        path,
+        version: 1,
+        onCreate: (db, version) async {
+          await db.execute('''
+          CREATE TABLE Yuza (
+            ID INTEGER PRIMARY KEY AUTOINCREMENT,
+            Namae TEXT UNIQUE NOT NULL,
+            Pasuwado TEXT NOT NULL,
+            XP INTEGER DEFAULT 0,
+            Ranku INTEGER DEFAULT 0,
+            HP INTEGER DEFAULT 10,
+            Streak INTEGER DEFAULT 0,
+            Active TEXT,
+            Goru TEXT
+          )
+        ''');
+
+          await db.execute('''
+          CREATE TABLE Tasuku (
+            ID INTEGER PRIMARY KEY AUTOINCREMENT,
+            Namae TEXT NOT NULL,
+            TasukuID INTEGER NOT NULL,
+            Tasuku TEXT NOT NULL,
+            Chekku INTEGER DEFAULT 0,
+            XP INTEGER DEFAULT 0
+          )
+        ''');
+        },
+      );
     } else {
       sqfliteFfiInit();
       databaseFactory = databaseFactoryFfi;

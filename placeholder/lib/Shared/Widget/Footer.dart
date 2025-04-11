@@ -3,7 +3,15 @@ import '../../Feature/Home/Controller/HomeController.dart';
 
 class Footer extends StatelessWidget {
   final HomeController controller;
-  const Footer({super.key, required this.controller});
+  final Function(int) onTabSelected;
+  final int currentIndex;
+
+  const Footer({
+    super.key,
+    required this.controller,
+    required this.onTabSelected,
+    required this.currentIndex,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,15 +25,19 @@ class Footer extends StatelessWidget {
           Expanded(
             child: Container(
               height: double.infinity,
-              decoration: const BoxDecoration(
-                border:
-                    Border(right: BorderSide(color: Colors.black, width: 1)),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: const Border(
+                  right: BorderSide(color: Colors.black, width: 1),
+                ),
               ),
               child: TextButton(
-                onPressed: () {},
+                onPressed: () => onTabSelected(0),
                 style: TextButton.styleFrom(
-                  shape:
-                      RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                  backgroundColor:
+                      currentIndex == 0 ? Colors.black12 : Colors.transparent,
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero),
                   padding: EdgeInsets.zero,
                 ),
                 child: const Center(
@@ -37,11 +49,16 @@ class Footer extends StatelessWidget {
           Expanded(
             child: Container(
               height: double.infinity,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+              ),
               child: TextButton(
-                onPressed: () {},
+                onPressed: () => onTabSelected(1),
                 style: TextButton.styleFrom(
-                  shape:
-                      RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                  backgroundColor:
+                      currentIndex == 1 ? Colors.black12 : Colors.transparent,
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero),
                   padding: EdgeInsets.zero,
                 ),
                 child: const Center(

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:placeholder/Feature/Home/Widget/API.dart';
+import 'package:placeholder/Shared/Widget/Footer.dart';
 import '../../../Shared/Widget/Header.dart';
-import '../../../Shared/Widget/Footer.dart';
-import '../Widget/Body.dart';
+import '../Widget/Home.dart';
 import '../Controller/HomeController.dart';
 import '../../../Shared/Controller/UIController.dart';
 import '../../../Shared/Widget/Dropdown.dart';
@@ -17,15 +18,21 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   late final HomeController Home;
   late final UIController UI;
+  int _Index = 0;
 
   @override
   void initState() {
     super.initState();
     Home = HomeController(context: context, username: widget.username);
     UI = UIController(context: context, username: widget.username, home: Home);
-    Home.Controller(UI);
     Home.init();
     UI.init();
+  }
+
+  void _Select(int index) {
+    setState(() {
+      _Index = index;
+    });
   }
 
   @override
@@ -42,8 +49,16 @@ class _HomeState extends State<Home> {
           Column(
             children: [
               Header(Home, UI),
-              Expanded(child: Body(controller: Home)),
-              Footer(controller: Home),
+              Expanded(
+                child: _Index == 0
+                    ? Body(controller: Home)
+                    : MapBody(controller: Home),
+              ),
+              Footer(
+                controller: Home,
+                currentIndex: _Index,
+                onTabSelected: _Select,
+              ),
             ],
           ),
           Dropdown(controller: UI),
