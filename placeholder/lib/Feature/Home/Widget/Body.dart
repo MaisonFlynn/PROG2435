@@ -76,22 +76,9 @@ class Body extends StatelessWidget {
   }
 }
 
-class XP extends StatefulWidget {
+class XP extends StatelessWidget {
   final double xp;
   const XP(this.xp, {super.key});
-
-  @override
-  State<XP> createState() => _XPState();
-}
-
-class _XPState extends State<XP> {
-  double exp = 0;
-
-  @override
-  void didUpdateWidget(covariant XP oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    exp = oldWidget.xp;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,8 +90,8 @@ class _XPState extends State<XP> {
       ),
       clipBehavior: Clip.hardEdge,
       child: TweenAnimationBuilder<double>(
-        duration: const Duration(milliseconds: 500),
-        tween: Tween<double>(begin: exp, end: widget.xp),
+        duration: const Duration(seconds: 1),
+        tween: Tween<double>(begin: 0, end: xp),
         builder: (_, value, __) => LinearProgressIndicator(
           value: value.clamp(0.0, 1.0),
           color: Colors.green,

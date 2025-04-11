@@ -31,10 +31,12 @@ class UIController {
   }
 
   void Toggle() {
-    final toggle = dropdown.value;
+    final toggled = dropdown.value;
     dropdown.value = !dropdown.value;
 
-    if (toggle && !dropdown.value) {
+    home.CheckDropdown(dropdown.value);
+
+    if (toggled && !dropdown.value) {
       Future.delayed(const Duration(seconds: 1), () {
         home.Refresh();
       });

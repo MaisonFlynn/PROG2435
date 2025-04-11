@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:placeholder/Feature/Home/Widget/API.dart';
 import 'package:placeholder/Shared/Widget/Footer.dart';
 import '../../../Shared/Widget/Header.dart';
-import '../Widget/Home.dart';
+import '../Widget/Body.dart';
 import '../Controller/HomeController.dart';
 import '../../../Shared/Controller/UIController.dart';
 import '../../../Shared/Widget/Dropdown.dart';
@@ -51,7 +51,11 @@ class _HomeState extends State<Home> {
               Header(Home, UI),
               Expanded(
                 child: _Index == 0
-                    ? Body(controller: Home)
+                    ? ValueListenableBuilder<UniqueKey>(
+                        valueListenable: Home.Key,
+                        builder: (_, key, __) =>
+                            Body(key: key, controller: Home),
+                      )
                     : MapBody(controller: Home),
               ),
               Footer(

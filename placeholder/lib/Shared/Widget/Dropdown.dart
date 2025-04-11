@@ -9,8 +9,10 @@ class Dropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder<bool>(
       valueListenable: controller.dropdown,
-      builder: (_, isOpen, __) {
-        if (!isOpen) return const SizedBox.shrink();
+      builder: (_, toggled, __) {
+        if (!toggled) {
+          return const SizedBox.shrink();
+        }
 
         return Positioned(
           top: 60,

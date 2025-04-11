@@ -1,35 +1,35 @@
 import 'dart:math';
 
 class LevelHelper {
-  static int Formula(int level, int ranku) {
+  static int Formula(int level) {
     if (level <= 1) return 0;
 
-    double base = 22 + (ranku - 1) * 5;
-    double exponent = 1.65 + (ranku - 1) * 0.1;
-    double shift = 100 - ranku * 20;
+    const double base = 25;
+    const double exponent = 1.6;
+    const double shift = 40;
 
-    double xp = base * pow(level, exponent) + 40 - shift;
+    double xp = base * pow(level, exponent) + shift;
     return (xp / 5).round() * 5;
   }
 
-  static int GetLevel(int xp, int ranku) {
+  static int GetLevel(int xp) {
     int level = 1;
-    while (xp >= Formula(level + 1, ranku)) {
+    while (xp >= Formula(level + 1)) {
       level++;
     }
     return level;
   }
 
-  static int Remainder(int xp, int ranku) {
-    int curr = GetLevel(xp, ranku);
-    int next = Formula(curr + 1, ranku);
+  static int Remainder(int xp) {
+    int curr = GetLevel(xp);
+    int next = Formula(curr + 1);
     return next - xp;
   }
 
-  static double Percentage(int xp, int ranku) {
-    int level = GetLevel(xp, ranku);
-    int curr = Formula(level, ranku);
-    int next = Formula(level + 1, ranku);
+  static double Percentage(int xp) {
+    int level = GetLevel(xp);
+    int curr = Formula(level);
+    int next = Formula(level + 1);
     return (xp - curr) / (next - curr);
   }
 }

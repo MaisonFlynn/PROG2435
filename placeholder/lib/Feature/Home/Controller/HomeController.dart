@@ -16,6 +16,8 @@ class HomeController {
   final ValueNotifier<int> level = ValueNotifier(1);
   final ValueNotifier<int> streak = ValueNotifier(0);
   final ValueNotifier<double> xp = ValueNotifier(0);
+  final ValueNotifier<UniqueKey> Key = ValueNotifier(UniqueKey());
+  double _xp = 0;
   final ValueNotifier<double> hp = ValueNotifier(10);
   final ValueNotifier<bool> throbber = ValueNotifier(true);
 
@@ -36,13 +38,12 @@ class HomeController {
   Future<void> _GetUser() async {
     final user = await DBService.GetUser(username);
     final XP = user?.xp ?? 0;
-    final rank = user?.rank ?? 1;
 
     int PrevLevel = level.value;
-    int NextLevel = LevelHelper.GetLevel(XP, rank);
+    int NextLevel = LevelHelper.GetLevel(XP);
 
     level.value = NextLevel;
-    xp.value = LevelHelper.Percentage(XP, rank);
+    _xp = LevelHelper.Percentage(XP);
     hp.value = (user?.hp ?? 10).toDouble();
     streak.value = user?.streak ?? 0;
 
@@ -52,6 +53,20 @@ class HomeController {
     }
 
     throbber.value = false;
+  }
+
+  bool _toggled = false;
+
+  void CheckDropdown(bool toggled) {
+    if (_toggled && !toggled) {
+      UpdateXP();
+    }
+    _toggled = toggled;
+  }
+
+  void UpdateXP() {
+    xp.value = _xp;
+    Key.value = UniqueKey();
   }
 
   Future<void> Refresh() async {
