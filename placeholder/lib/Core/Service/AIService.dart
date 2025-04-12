@@ -116,19 +116,16 @@ class AIService {
 
     String Difficulty = {
       1: 'EASY',
-      2: 'MED.',
+      2: 'MEDIUM',
       3: 'HARD',
     }[ranku]!;
 
     return '''
-𝐆𝐄𝐍𝐄𝐑𝐀𝐓𝐄 𝐄𝐗𝐀𝐂𝐓𝐋𝐘 𝟓 𝐔𝐍𝐈𝐐𝐔𝐄 & $Difficulty 𝐒𝐄𝐋𝐅-𝐂𝐀𝐑𝐄 𝐓𝐀𝐒𝐊𝐒 𝐅𝐎𝐑 𝐔𝐒𝐄𝐑'𝐒 𝐆𝐎𝐀𝐋: $Goal
+Generate 5 SHORT (LESS THAN 15 CHARACTERS), ALL UPPERCASE & UNIQUE Self-Care Tasks FOR User's GOAL: $Goal AND DIFFICULTY: $Difficulty.
 
-𝐑𝐔𝐋𝐄𝐒:
-• ≤ 15 CHARACTERS
-• UPPERCASE
-• 𝐍𝐎 EXTRA TEXT
-• RETURN 𝐎𝐍𝐋𝐘 JSON:
+RETURN ONLY JSON!
 
+EXAMPLE:
 $Example
 ''';
   }
