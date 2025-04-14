@@ -26,10 +26,12 @@ class Body extends StatelessWidget {
               }
 
               return Center(
-                child: Image.asset(
-                  path,
-                  height: 120,
-                  fit: BoxFit.contain,
+                child: SizedBox(
+                  height: 500,
+                  child: Image.asset(
+                    path,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               );
             },
