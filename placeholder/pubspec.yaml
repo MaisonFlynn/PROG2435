@@ -44,6 +44,7 @@ dependencies:
   geolocator: ^13.0.4
   geolocator_windows: ^0.2.5
   google_maps_flutter: ^2.12.1
+  device_preview: ^1.2.0
 
 dev_dependencies:
   flutter_test:

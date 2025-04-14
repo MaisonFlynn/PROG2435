@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart'; // kIsWeb
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'Feature/Auth/Screen/AuthScreen.dart';
+import 'package:device_preview/device_preview.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,7 +15,12 @@ void main() async {
     databaseFactory = databaseFactoryFfi; // Desktop
   }
 
-  runApp(const Placeholder());
+  runApp(
+    DevicePreview(
+      enabled: false,
+      builder: (context) => Placeholder(),
+    ),
+  );
 }
 
 class Placeholder extends StatelessWidget {
