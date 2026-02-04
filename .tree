@@ -1,0 +1,43 @@
+├── main.dart
+│
+├── Core/
+│   ├── Model/
+│   │   └── UserModel.dart
+│   ├── Service/
+│   │   ├── AIService.dart
+│   │   ├── DBService.dart
+│   │   └── TimeService.dart
+│   └── Utility/
+│       ├── LevelHelper.dart
+│       ├── TaskDefault.dart
+│       └── XPHelper.dart
+│
+├── Feature/
+│   ├── Auth/
+│   │   ├── Controller/
+│   │   │   └── AuthController.dart
+│   │   ├── Screen/
+│   │   │   └── AuthScreen.dart
+│   │   └── Widget/
+│   │       └── Form.dart
+│   └── Home/
+│       ├── Asset/
+│       │   ├── Asset.dart
+│       │   ├── One.png
+│       │   ├── Two.png
+│       │   └── Three.png
+│       ├── Controller/
+│       │   └── HomeController.dart
+│       ├── Screen/
+│       │   └── HomeScreen.dart
+│       └── Widget/
+│           ├── API.dart
+│           └── Body.dart
+│
+├── Shared/
+│   ├── Controller/
+│   │   └── UIController.dart
+│   └── Widget/
+│       ├── Dropdown.dart
+│       ├── Footer.dart
+│       └── Header.dart
